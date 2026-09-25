@@ -2,1501 +2,1503 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mast — мессенджер</title>
 <style>
-/* ============ БАЗА ============ */
+/* ============================ БАЗА ============================ */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#05080f;
-  --panel:#0a1120;
-  --panel2:#0f1a2e;
-  --panel3:#132038;
-  --line:rgba(56,189,248,.10);
-  --line2:rgba(56,189,248,.28);
-  --accent:#38bdf8;
-  --accent2:#0ea5e9;
-  --accent3:#22d3ee;
-  --text:#e8f2ff;
-  --muted:#7b8ea9;
-  --green:#34d399;
-  --red:#f87171;
-  --radius:16px;
+  --bg:#0a0e13; --panel:#0f151c; --panel2:#141c25; --panel3:#1a242f;
+  --border:#1e2a36; --text:#e8eef5; --muted:#7c8b9b;
+  --accent:#38bdf8; --accent-d:#0ea5e9; --danger:#ef4444; --ok:#22c55e;
 }
 html,body{height:100%}
 body{
-  font-family:'Inter','Segoe UI',system-ui,-apple-system,Roboto,sans-serif;
-  background:var(--bg);color:var(--text);overflow:hidden;
+  font-family:'Segoe UI',system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  background:var(--bg); color:var(--text); overflow:hidden;
   -webkit-font-smoothing:antialiased;
 }
-button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
-input{font-family:inherit;outline:none}
+button{font-family:inherit}
+input{font-family:inherit}
+.hidden{display:none !important}
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(56,189,248,.18);border-radius:8px}
-::-webkit-scrollbar-thumb:hover{background:rgba(56,189,248,.32)}
-.hidden{display:none !important}
+::-webkit-scrollbar-thumb{background:#22303d;border-radius:8px}
+::-webkit-scrollbar-thumb:hover{background:#2d3f50}
 
-/* ============ ЭКРАН АВТОРИЗАЦИИ ============ */
-#auth{
-  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-  background:
-    radial-gradient(900px 600px at 15% 10%, rgba(14,165,233,.16), transparent 60%),
-    radial-gradient(800px 600px at 85% 90%, rgba(34,211,238,.12), transparent 60%),
-    radial-gradient(600px 400px at 50% 50%, rgba(56,189,248,.06), transparent 70%),
-    var(--bg);
-  z-index:50;padding:20px;
+/* ============================ АВАТАРКИ ============================ */
+.av{
+  border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  flex:0 0 auto;font-weight:700;color:#fff;user-select:none;
+  box-shadow:0 2px 10px rgba(0,0,0,.35);
 }
-#auth::before{
-  content:'';position:absolute;inset:0;
-  background-image:
-    linear-gradient(rgba(56,189,248,.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(56,189,248,.035) 1px, transparent 1px);
-  background-size:56px 56px;
-  mask-image:radial-gradient(circle at 50% 50%, #000 20%, transparent 78%);
-  pointer-events:none;
+.av img{width:100%;height:100%;object-fit:cover;display:block}
+
+/* ============================ ЭКРАН АВТОРИЗАЦИИ ============================ */
+.auth{
+  position:fixed;inset:0;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(900px 600px at 15% 10%,rgba(56,189,248,.13),transparent 60%),
+             radial-gradient(800px 700px at 85% 90%,rgba(59,130,246,.12),transparent 60%),
+             #080c11;
 }
+.auth-bg{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.auth-bg::before,.auth-bg::after{
+  content:"";position:absolute;border-radius:50%;filter:blur(90px);opacity:.35;
+}
+.auth-bg::before{width:420px;height:420px;background:#0ea5e9;top:-120px;left:-100px;animation:float1 16s ease-in-out infinite}
+.auth-bg::after{width:380px;height:380px;background:#3b82f6;bottom:-140px;right:-90px;animation:float2 19s ease-in-out infinite}
+@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(70px,60px)}}
+@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-60px,-50px)}}
+
 .auth-card{
-  position:relative;width:100%;max-width:420px;
-  background:linear-gradient(160deg, rgba(19,32,56,.92), rgba(10,17,32,.96));
-  border:1px solid var(--line2);
-  border-radius:26px;padding:38px 34px 30px;
-  box-shadow:0 30px 80px rgba(0,0,0,.65), 0 0 0 1px rgba(56,189,248,.05) inset, 0 0 70px rgba(14,165,233,.10);
-  backdrop-filter:blur(14px);
-  animation:pop .45s cubic-bezier(.2,.9,.3,1.2);
+  position:relative;width:400px;max-width:calc(100vw - 32px);
+  background:rgba(15,21,28,.85);backdrop-filter:blur(20px);
+  border:1px solid var(--border);border-radius:22px;padding:32px 30px 26px;
+  box-shadow:0 30px 90px rgba(0,0,0,.7);
+  animation:pop .35s cubic-bezier(.2,.9,.3,1.3);
 }
 @keyframes pop{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
-.logo{
-  font-size:40px;font-weight:800;letter-spacing:-1.5px;text-align:center;
-  background:linear-gradient(120deg,#e8f2ff 10%, var(--accent) 45%, var(--accent3) 90%);
-  -webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 0 24px rgba(56,189,248,.35));
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:26px}
+.brand-logo{
+  width:52px;height:52px;border-radius:16px;display:grid;place-items:center;
+  background:linear-gradient(135deg,#38bdf8,#2563eb);color:#04121b;
+  font-size:26px;font-weight:900;box-shadow:0 8px 26px rgba(56,189,248,.4);
 }
-.tagline{text-align:center;color:var(--muted);font-size:13.5px;margin:8px 0 26px}
-.auth-tabs{
-  display:flex;background:rgba(5,8,15,.7);border-radius:13px;padding:4px;margin-bottom:22px;
-  border:1px solid var(--line);
-}
-.auth-tab{
-  flex:1;padding:10px;border-radius:10px;font-size:14px;font-weight:600;color:var(--muted);
-  transition:.2s;
-}
-.auth-tab.active{
-  background:linear-gradient(135deg,var(--accent2),var(--accent));
-  color:#04121f;box-shadow:0 6px 20px rgba(14,165,233,.35);
-}
-.fld{display:block;font-size:12px;color:var(--muted);margin:14px 0 7px;font-weight:600;letter-spacing:.3px}
-.inp{
-  width:100%;padding:13px 15px;border-radius:12px;
-  background:rgba(5,8,15,.75);
-  border:1px solid var(--line);
-  color:var(--text);font-size:14.5px;transition:.2s;
-}
-.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.13);background:rgba(5,8,15,.95)}
-.inp::placeholder{color:#4a5a72}
-.btn-primary{
-  width:100%;margin-top:22px;padding:14px;border-radius:13px;font-size:15px;font-weight:700;
-  background:linear-gradient(135deg,var(--accent2),var(--accent));color:#04121f;
-  box-shadow:0 10px 28px rgba(14,165,233,.35);transition:.2s;letter-spacing:.2px;
-}
-.btn-primary:hover{transform:translateY(-1px);box-shadow:0 14px 34px rgba(14,165,233,.5)}
-.btn-primary:active{transform:translateY(0)}
-.auth-error{
-  color:var(--red);font-size:12.5px;text-align:center;margin-top:12px;min-height:16px;font-weight:500;
-}
+.brand h1{font-size:26px;letter-spacing:.5px;
+  background:linear-gradient(120deg,#e8eef5,#7dd3fc);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand p{font-size:12.5px;color:var(--muted);margin-top:2px}
 
-/* ============ ОСНОВНОЕ ПРИЛОЖЕНИЕ ============ */
-#app{display:flex;height:100vh;width:100vw}
+.auth-tabs{display:flex;background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:20px}
+.auth-tab{
+  flex:1;padding:10px;border:none;background:transparent;border-radius:9px;
+  color:var(--muted);font-size:14px;font-weight:600;cursor:pointer;transition:.18s;
+}
+.auth-tab.active{background:linear-gradient(135deg,#38bdf8,#0ea5e9);color:#04121b;box-shadow:0 4px 16px rgba(56,189,248,.3)}
+
+.field{display:block;margin-bottom:14px}
+.field span{display:block;font-size:12.5px;color:var(--muted);margin-bottom:7px;font-weight:600;letter-spacing:.2px}
+.field input{
+  width:100%;padding:12px 14px;border-radius:11px;background:var(--panel2);
+  border:1px solid var(--border);color:var(--text);font-size:14.5px;outline:none;transition:.18s;
+}
+.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.13);background:#111a23}
+.field input::placeholder{color:#4c5b6b}
+
+.auth-error{min-height:18px;font-size:13px;color:#f87171;margin-bottom:10px;text-align:center}
+.btn-primary{
+  width:100%;padding:13px;border:none;border-radius:12px;cursor:pointer;
+  background:linear-gradient(135deg,#38bdf8,#0ea5e9);color:#04121b;
+  font-size:15px;font-weight:700;letter-spacing:.3px;transition:.18s;
+  box-shadow:0 8px 24px rgba(56,189,248,.28);
+}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 30px rgba(56,189,248,.4)}
+.btn-primary:active{transform:translateY(0)}
+.auth-note{margin-top:16px;font-size:11.5px;color:#4d5c6c;text-align:center;line-height:1.5}
+
+/* ============================ ПРИЛОЖЕНИЕ ============================ */
+.app{display:flex;height:100vh;height:100dvh}
 
 /* --- Сайдбар --- */
 .sidebar{
-  width:340px;flex:0 0 340px;display:flex;flex-direction:column;
-  background:linear-gradient(180deg,var(--panel),#070d18);
-  border-right:1px solid var(--line);
+  width:330px;flex:0 0 330px;background:var(--panel);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:relative;
 }
-.side-head{
-  display:flex;align-items:center;gap:12px;padding:16px 16px 12px;
-}
-.me{display:flex;align-items:center;gap:11px;flex:1;min-width:0}
-.me-name{font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.me-status{font-size:11.5px;color:var(--accent);display:flex;align-items:center;gap:5px;margin-top:2px}
-.me-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+.side-header{display:flex;align-items:center;gap:10px;padding:13px 14px;border-bottom:1px solid var(--border)}
+.me-name{font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
+.side-actions{margin-left:auto;display:flex;gap:7px}
 .icon-btn{
-  width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;
-  font-size:16px;color:var(--muted);transition:.18s;border:1px solid transparent;
+  width:37px;height:37px;border-radius:11px;display:grid;place-items:center;
+  background:var(--panel2);border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;transition:.16s;
 }
-.icon-btn:hover{background:rgba(56,189,248,.09);color:var(--accent);border-color:var(--line2)}
+.icon-btn:hover{color:var(--accent);border-color:rgba(56,189,248,.55);background:rgba(56,189,248,.09)}
+.icon-btn.accent{
+  background:linear-gradient(135deg,#38bdf8,#0ea5e9);color:#04121b;border:none;
+  box-shadow:0 5px 18px rgba(56,189,248,.35);
+}
+.icon-btn.accent:hover{transform:translateY(-1px) scale(1.04);color:#04121b}
+.icon-btn svg{width:19px;height:19px}
 
-.search{padding:0 16px 12px;position:relative}
-.search .inp{padding:11px 14px 11px 38px;font-size:13.5px;border-radius:12px}
-.search::before{
-  content:'⌕';position:absolute;left:29px;top:50%;transform:translateY(-60%);
-  color:var(--muted);font-size:17px;pointer-events:none;
-}
-.side-tabs{display:flex;gap:6px;padding:0 16px 12px;border-bottom:1px solid var(--line)}
+.search-wrap{padding:11px 14px 4px}
+.search{display:flex;align-items:center;gap:9px;background:var(--panel2);border:1px solid var(--border);border-radius:11px;padding:9px 12px;transition:.16s}
+.search:focus-within{border-color:rgba(56,189,248,.55);box-shadow:0 0 0 3px rgba(56,189,248,.09)}
+.search svg{width:16px;height:16px;color:#4d5c6c;flex:0 0 auto}
+.search input{background:none;border:none;outline:none;color:var(--text);width:100%;font-size:13.8px}
+.search input::placeholder{color:#4c5b6b}
+
+.side-tabs{display:flex;gap:6px;padding:11px 14px 9px}
 .side-tab{
-  flex:1;padding:9px 6px;border-radius:10px;font-size:12.5px;font-weight:600;color:var(--muted);
-  transition:.18s;position:relative;
+  flex:1;padding:8px;border-radius:10px;background:transparent;border:1px solid transparent;
+  color:var(--muted);cursor:pointer;font-size:13px;font-weight:600;transition:.16s;
+  display:flex;align-items:center;justify-content:center;gap:6px;
 }
-.side-tab:hover{color:var(--text);background:rgba(56,189,248,.05)}
-.side-tab.active{
-  color:var(--accent);background:rgba(56,189,248,.10);
-  box-shadow:inset 0 0 0 1px rgba(56,189,248,.22);
-}
+.side-tab:hover{color:var(--text);background:var(--panel2)}
+.side-tab.active{background:var(--panel2);color:var(--accent);border-color:var(--border)}
 .badge{
-  display:none;position:absolute;top:3px;right:6px;min-width:16px;height:16px;
-  border-radius:9px;background:var(--red);color:#fff;font-size:10px;font-weight:700;
-  align-items:center;justify-content:center;padding:0 4px;line-height:1;
+  min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:#04121b;
+  font-size:11px;font-weight:800;display:grid;place-items:center;
 }
-.badge.show{display:inline-flex}
 
-.list{flex:1;overflow-y:auto;padding:10px 10px 20px}
-.empty-block{text-align:center;padding:46px 20px;color:var(--muted);font-size:13px;line-height:1.6}
-.empty-block .ico{font-size:34px;margin-bottom:10px;opacity:.5}
-.empty-block b{display:block;color:var(--text);font-size:14.5px;margin-bottom:6px}
+.list{flex:1;overflow-y:auto;padding:0 9px 18px}
+.friend{
+  display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:13px;
+  cursor:pointer;transition:.15s;margin-bottom:2px;
+}
+.friend:hover{background:var(--panel2)}
+.friend.active{background:linear-gradient(90deg,rgba(56,189,248,.16),rgba(56,189,248,.03));box-shadow:inset 2.5px 0 0 var(--accent)}
+.av-wrap{position:relative;flex:0 0 auto;display:flex}
+.on-dot{
+  position:absolute;right:0;bottom:0;width:12px;height:12px;border-radius:50%;
+  background:var(--ok);border:2.5px solid var(--panel);box-shadow:0 0 8px rgba(34,197,94,.7);
+}
+.friend.active .on-dot{border-color:#131c26}
+.friend-main{min-width:0;flex:1}
+.friend-name{font-size:14.3px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.friend-last{font-size:12.3px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 
-.row{
-  display:flex;gap:12px;padding:10px;border-radius:14px;cursor:pointer;
-  align-items:center;transition:.15s;position:relative;
-}
-.row:hover{background:rgba(56,189,248,.06)}
-.row.active{
-  background:linear-gradient(90deg,rgba(56,189,248,.18),rgba(56,189,248,.04));
-  box-shadow:inset 0 0 0 1px rgba(56,189,248,.25);
-}
-.avatar{
-  width:44px;height:44px;border-radius:50%;background-size:cover;background-position:center;
-  display:flex;align-items:center;justify-content:center;font-weight:800;color:#04121f;
-  font-size:15px;flex:0 0 auto;letter-spacing:.4px;user-select:none;
-  box-shadow:0 0 0 2px rgba(56,189,248,.12);
-}
-.row-av{position:relative;flex:0 0 auto}
-.dot{
-  position:absolute;right:-1px;bottom:1px;width:13px;height:13px;border-radius:50%;
-  background:var(--green);border:2.5px solid var(--panel);
-}
-.row-main{flex:1;min-width:0}
-.row-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.row-name{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row-time{font-size:10.5px;color:var(--muted);flex:0 0 auto}
-.row-bottom{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:3px}
-.row-prev{
-  font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;
-}
-.unread{
-  background:linear-gradient(135deg,var(--accent2),var(--accent));color:#04121f;
-  font-size:10.5px;font-weight:800;min-width:19px;height:19px;border-radius:10px;
-  display:flex;align-items:center;justify-content:center;padding:0 6px;flex:0 0 auto;
-}
-.row-actions{display:flex;gap:6px;flex:0 0 auto}
-.mini-btn{
-  width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;
-  font-size:14px;background:rgba(56,189,248,.08);border:1px solid var(--line);
-  transition:.18s;color:var(--accent);
-}
-.mini-btn:hover{background:rgba(56,189,248,.2);transform:translateY(-1px)}
-.mini-btn.danger{color:var(--red);background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.2)}
-.mini-btn.danger:hover{background:rgba(248,113,113,.2)}
-.mini-btn.ok{color:var(--green);background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.2)}
-.mini-btn.ok:hover{background:rgba(52,211,153,.2)}
+.empty-list{text-align:center;color:#4d5c6c;font-size:13px;padding:30px 16px;line-height:1.7}
+.empty-list b{color:var(--accent)}
 
-.add-friend{display:flex;gap:8px;padding:6px 6px 14px}
-.add-friend .inp{flex:1;padding:11px 13px;font-size:13px}
-.add-friend button{
-  width:44px;border-radius:12px;font-size:20px;font-weight:400;
-  background:linear-gradient(135deg,var(--accent2),var(--accent));color:#04121f;
-  box-shadow:0 6px 18px rgba(14,165,233,.3);transition:.18s;
+/* --- Запросы --- */
+.request{display:flex;align-items:center;gap:10px;padding:10px;border-radius:13px;background:var(--panel2);border:1px solid var(--border);margin-bottom:8px}
+.req-main{flex:1;min-width:0}
+.req-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.req-sub{font-size:11.8px;color:var(--muted);margin-top:2px}
+.req-btn{
+  width:34px;height:34px;border-radius:10px;border:1px solid var(--border);cursor:pointer;
+  display:grid;place-items:center;background:transparent;transition:.16s;flex:0 0 auto;
 }
-.add-friend button:hover{transform:translateY(-1px)}
+.req-btn svg{width:16px;height:16px}
+.req-btn.ok{color:var(--ok);border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.08)}
+.req-btn.ok:hover{background:rgba(34,197,94,.2)}
+.req-btn.no{color:#f87171;border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.07)}
+.req-btn.no:hover{background:rgba(239,68,68,.18)}
 
 /* --- Чат --- */
-.chat{flex:1;display:flex;flex-direction:column;position:relative;min-width:0;
-  background:
-    radial-gradient(700px 500px at 80% 0%, rgba(14,165,233,.07), transparent 65%),
-    radial-gradient(600px 500px at 10% 100%, rgba(34,211,238,.05), transparent 65%),
-    var(--bg);
-}
-.empty{
+.chat{flex:1;display:flex;flex-direction:column;background:var(--bg);min-width:0;position:relative}
+.chat-empty{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  color:var(--muted);gap:6px;text-align:center;padding:30px;
+  gap:14px;color:#3f4d5c;text-align:center;padding:20px;
 }
-.empty-icon{
-  font-size:54px;margin-bottom:10px;filter:drop-shadow(0 0 24px rgba(56,189,248,.4));opacity:.85;
+.chat-empty .big{
+  width:88px;height:88px;border-radius:26px;display:grid;place-items:center;
+  background:linear-gradient(135deg,rgba(56,189,248,.15),rgba(59,130,246,.08));
+  border:1px solid rgba(56,189,248,.22);
 }
-.empty h3{color:var(--text);font-size:19px;font-weight:700}
-.empty p{font-size:13.5px;max-width:330px;line-height:1.6}
+.chat-empty .big svg{width:38px;height:38px;color:var(--accent)}
+.chat-empty h3{color:#5a6a7a;font-size:16px;font-weight:600}
+.chat-empty p{font-size:13px;color:#44515f;max-width:280px;line-height:1.6}
 
-.chat-inner{flex:1;display:flex;flex-direction:column;min-height:0}
-.chat-head{
-  display:flex;align-items:center;gap:13px;padding:13px 20px;
-  border-bottom:1px solid var(--line);
-  background:rgba(10,17,32,.72);backdrop-filter:blur(14px);z-index:5;
+.chat-header{
+  display:flex;align-items:center;gap:12px;padding:11px 18px;
+  border-bottom:1px solid var(--border);background:var(--panel);
 }
-.chat-head-info{flex:1;min-width:0}
-.chat-name{font-weight:700;font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chat-sub{font-size:12px;color:var(--muted);margin-top:2px}
-.chat-sub.online{color:var(--accent)}
+.peer-main{min-width:0;flex:1}
+.peer-name{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.peer-status{font-size:12px;color:var(--muted);margin-top:1px}
+.peer-status.online{color:var(--ok)}
 .chat-actions{display:flex;gap:8px}
-.chat-actions .icon-btn{background:rgba(56,189,248,.07);border:1px solid var(--line)}
-.chat-actions .icon-btn:disabled{opacity:.3;cursor:not-allowed}
-.chat-actions .icon-btn:disabled:hover{background:rgba(56,189,248,.07);color:var(--muted);transform:none}
+.btn-back{display:none;width:36px;height:36px;border-radius:10px;background:var(--panel2);border:1px solid var(--border);color:var(--muted);cursor:pointer;place-items:center}
+.btn-back svg{width:18px;height:18px}
 
 .messages{
-  flex:1;overflow-y:auto;padding:24px 26px 12px;display:flex;flex-direction:column;gap:3px;
-  scroll-behavior:smooth;
+  flex:1;overflow-y:auto;padding:20px 20px 12px;
+  display:flex;flex-direction:column;gap:9px;
+  background-image:radial-gradient(rgba(56,189,248,.045) 1px,transparent 1px);
+  background-size:26px 26px;
 }
-.chat-empty{margin:auto;color:var(--muted);font-size:13.5px;text-align:center}
-.day-sep{display:flex;justify-content:center;margin:16px 0 10px}
-.day-sep span{
-  font-size:11px;color:var(--muted);background:rgba(19,32,56,.85);
-  padding:5px 14px;border-radius:11px;border:1px solid var(--line);font-weight:600;
-}
-.msg{display:flex;flex-direction:column;max-width:68%;margin:2px 0;animation:msgIn .22s ease}
+.msg-row{display:flex;gap:8px;align-items:flex-end;max-width:78%;animation:msgIn .22s ease}
 @keyframes msgIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
-.msg.out{align-self:flex-end;align-items:flex-end}
-.msg.in{align-self:flex-start;align-items:flex-start}
+.msg-row.mine{align-self:flex-end;flex-direction:row-reverse}
+.msg-av{flex:0 0 auto;margin-bottom:2px}
 .bubble{
-  padding:9px 14px;border-radius:17px;font-size:14.5px;line-height:1.42;
-  word-break:break-word;white-space:pre-wrap;
+  background:var(--panel2);border:1px solid var(--border);padding:9px 13px;
+  border-radius:16px 16px 16px 5px;font-size:14.4px;line-height:1.45;
+  word-break:break-word;display:inline-flex;align-items:flex-end;gap:10px;
+  box-shadow:0 2px 10px rgba(0,0,0,.2);
 }
-.msg.in .bubble{
-  background:var(--panel2);border:1px solid var(--line);border-bottom-left-radius:6px;
+.msg-row.mine .bubble{
+  background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#04121b;border:none;
+  border-radius:16px 16px 5px 16px;font-weight:500;
+  box-shadow:0 4px 18px rgba(56,189,248,.25);
 }
-.msg.out .bubble{
-  background:linear-gradient(135deg,var(--accent2),var(--accent));
-  color:#03111d;font-weight:500;border-bottom-right-radius:6px;
-  box-shadow:0 6px 20px rgba(14,165,233,.22);
-}
-.msg-time{font-size:10.5px;color:var(--muted);margin:4px 7px 0}
+.msg-text{white-space:pre-wrap}
+.msg-time{font-size:10.5px;opacity:.55;white-space:nowrap;flex:0 0 auto}
 
-.typing{
-  padding:0 28px 6px;font-size:12px;color:var(--accent);height:18px;
-  display:flex;align-items:center;gap:6px;
+.composer{display:flex;gap:10px;padding:13px 18px;border-top:1px solid var(--border);background:var(--panel)}
+.composer input{
+  flex:1;background:var(--panel2);border:1px solid var(--border);border-radius:13px;
+  padding:12px 16px;color:var(--text);outline:none;font-size:14.4px;transition:.16s;
 }
-.typing .tdots span{
-  display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--accent);
-  margin-right:3px;animation:blink 1.2s infinite;
-}
-.typing .tdots span:nth-child(2){animation-delay:.2s}
-.typing .tdots span:nth-child(3){animation-delay:.4s}
-@keyframes blink{0%,60%,100%{opacity:.25}30%{opacity:1}}
-
-.composer{
-  display:flex;gap:10px;padding:14px 22px 18px;align-items:center;
-  border-top:1px solid var(--line);background:rgba(10,17,32,.6);backdrop-filter:blur(12px);
-}
-.composer .inp{flex:1;border-radius:15px;padding:13px 17px;font-size:14.5px}
+.composer input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.11)}
+.composer input::placeholder{color:#4c5b6b}
 .send-btn{
-  width:48px;height:48px;flex:0 0 auto;border-radius:15px;font-size:18px;
-  background:linear-gradient(135deg,var(--accent2),var(--accent));color:#04121f;
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 8px 24px rgba(14,165,233,.35);transition:.18s;
+  width:47px;height:47px;flex:0 0 auto;border-radius:13px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#38bdf8,#0ea5e9);color:#04121b;display:grid;place-items:center;
+  transition:.16s;box-shadow:0 5px 20px rgba(56,189,248,.3);
 }
-.send-btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 12px 30px rgba(14,165,233,.5)}
+.send-btn:hover{transform:translateY(-1px) scale(1.03)}
 .send-btn:active{transform:scale(.96)}
+.send-btn svg{width:20px;height:20px}
 
-/* ============ МОДАЛКА ============ */
+/* ============================ МОДАЛКИ ============================ */
+.overlay{
+  position:fixed;inset:0;z-index:900;display:grid;place-items:center;
+  background:rgba(5,9,13,.72);backdrop-filter:blur(7px);animation:fadeIn .18s ease;
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .modal{
-  position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;
-  background:rgba(3,6,12,.78);backdrop-filter:blur(7px);padding:20px;animation:fade .2s;
+  width:380px;max-width:calc(100vw - 32px);background:var(--panel);
+  border:1px solid var(--border);border-radius:20px;padding:24px;
+  box-shadow:0 30px 80px rgba(0,0,0,.7);animation:pop .25s cubic-bezier(.2,.9,.3,1.3);
 }
-@keyframes fade{from{opacity:0}to{opacity:1}}
-.modal-card{
-  position:relative;width:100%;max-width:420px;
-  background:linear-gradient(160deg,rgba(19,32,56,.97),rgba(10,17,32,.99));
-  border:1px solid var(--line2);border-radius:24px;padding:30px 28px 26px;
-  box-shadow:0 30px 80px rgba(0,0,0,.7), 0 0 60px rgba(14,165,233,.09);
-  animation:pop .3s cubic-bezier(.2,.9,.3,1.2);
-}
-.modal-card h3{font-size:19px;font-weight:700;margin-bottom:20px}
-.modal-close{
-  position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:10px;
-  color:var(--muted);font-size:16px;display:flex;align-items:center;justify-content:center;transition:.18s;
-}
-.modal-close:hover{background:rgba(248,113,113,.12);color:var(--red)}
-.prof-avatar-wrap{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:22px}
-.upload-btn{
-  font-size:12.5px;color:var(--accent);cursor:pointer;padding:7px 15px;border-radius:10px;
-  border:1px solid var(--line2);background:rgba(56,189,248,.07);transition:.18s;font-weight:600;
-}
-.upload-btn:hover{background:rgba(56,189,248,.18)}
-.modal-actions{display:flex;gap:10px;margin-top:24px}
+.modal h2{font-size:18px;margin-bottom:6px}
+.modal .sub{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.5}
+.modal-actions{display:flex;gap:10px;margin-top:18px}
 .btn-ghost{
-  flex:1;padding:13px;border-radius:13px;font-size:14px;font-weight:600;
-  background:rgba(248,113,113,.09);color:var(--red);border:1px solid rgba(248,113,113,.22);transition:.18s;
+  flex:1;padding:11px;border-radius:11px;background:var(--panel2);border:1px solid var(--border);
+  color:var(--text);font-size:14px;font-weight:600;cursor:pointer;transition:.16s;
 }
-.btn-ghost:hover{background:rgba(248,113,113,.2)}
-.modal-actions .btn-primary{margin-top:0;flex:1.6}
+.btn-ghost:hover{background:var(--panel3);border-color:#2b3b4a}
+.btn-accent{
+  flex:1;padding:11px;border-radius:11px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#38bdf8,#0ea5e9);color:#04121b;font-size:14px;font-weight:700;transition:.16s;
+}
+.btn-accent:hover{transform:translateY(-1px);box-shadow:0 8px 22px rgba(56,189,248,.32)}
+.modal-error{min-height:17px;font-size:12.8px;color:#f87171;margin-top:10px;text-align:center}
 
-/* ============ ЗВОНОК ============ */
+.set-row{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.set-avatar{position:relative;cursor:pointer;flex:0 0 auto}
+.set-avatar .cam{
+  position:absolute;right:-3px;bottom:-3px;width:30px;height:30px;border-radius:50%;
+  background:linear-gradient(135deg,#38bdf8,#0ea5e9);display:grid;place-items:center;
+  border:3px solid var(--panel);color:#04121b;
+}
+.set-avatar .cam svg{width:14px;height:14px}
+.set-info{min-width:0}
+.set-info .u{font-size:16px;font-weight:700}
+.set-info .s{font-size:12.3px;color:var(--muted);margin-top:3px}
+
+/* ============================ ЗВОНОК ============================ */
 .call-overlay{
-  position:fixed;inset:0;z-index:120;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:18px;
-  background:
-    radial-gradient(900px 700px at 50% 25%, rgba(14,165,233,.18), transparent 65%),
-    radial-gradient(700px 600px at 50% 100%, rgba(34,211,238,.10), transparent 65%),
-    #04070e;
-  animation:fade .25s;
+  position:fixed;inset:0;z-index:1000;display:grid;place-items:center;
+  background:rgba(4,8,12,.88);backdrop-filter:blur(16px);animation:fadeIn .2s ease;
 }
-.call-overlay.video-on{background:#000}
-#remote-video{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  opacity:0;transition:opacity .45s;background:#000;z-index:0;
+.call-card{
+  width:350px;max-width:calc(100vw - 32px);padding:38px 28px 30px;text-align:center;
+  background:linear-gradient(180deg,#131c26,#0e141b);
+  border:1px solid var(--border);border-radius:26px;
+  box-shadow:0 40px 100px rgba(0,0,0,.8);
 }
-.call-overlay.video-on #remote-video{opacity:1}
-#local-video{
-  position:absolute;right:22px;bottom:130px;width:180px;height:120px;object-fit:cover;
-  border-radius:16px;border:1px solid var(--line2);background:#0a1120;
-  box-shadow:0 12px 34px rgba(0,0,0,.6);z-index:3;transform:scaleX(-1);
+.call-av-wrap{position:relative;display:inline-block;margin-bottom:20px}
+.call-av-wrap::before{
+  content:"";position:absolute;inset:-14px;border-radius:50%;
+  border:2px solid rgba(56,189,248,.4);opacity:0;
 }
-#local-video.hidden{display:none}
-.call-top{
-  position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:12px;
-  text-align:center;
+.call-overlay.ringing .call-av-wrap::before{animation:ring 1.7s ease-out infinite}
+@keyframes ring{0%{transform:scale(.92);opacity:.85}100%{transform:scale(1.35);opacity:0}}
+.call-name{font-size:22px;font-weight:700;margin-bottom:6px}
+.call-status{font-size:13.5px;color:var(--accent);font-weight:600;letter-spacing:.3px}
+.call-timer{font-size:15px;color:var(--muted);margin-top:8px;font-variant-numeric:tabular-nums;min-height:20px}
+.call-actions{display:flex;justify-content:center;gap:16px;margin-top:28px}
+.call-btn{
+  width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;
+  display:grid;place-items:center;transition:.18s;color:#fff;
 }
-.call-overlay.video-on .call-top{opacity:0;transition:.3s}
-.call-top .avatar{box-shadow:0 0 0 4px rgba(56,189,248,.18), 0 0 70px rgba(56,189,248,.4);animation:pulse 2.4s infinite}
-@keyframes pulse{
-  0%,100%{box-shadow:0 0 0 4px rgba(56,189,248,.18), 0 0 60px rgba(56,189,248,.35)}
-  50%{box-shadow:0 0 0 12px rgba(56,189,248,.05), 0 0 90px rgba(56,189,248,.55)}
-}
-.call-name{font-size:26px;font-weight:800;letter-spacing:-.4px}
-.call-status{font-size:14px;color:var(--accent);font-weight:600;letter-spacing:.4px}
-.call-controls{
-  position:absolute;bottom:52px;z-index:4;display:flex;gap:18px;align-items:center;
-}
-.cbtn{
-  width:64px;height:64px;border-radius:50%;font-size:22px;
-  display:flex;align-items:center;justify-content:center;transition:.18s;
-  background:rgba(56,189,248,.12);border:1px solid var(--line2);color:var(--accent);
-  backdrop-filter:blur(8px);
-}
-.cbtn:hover{transform:translateY(-3px) scale(1.05);background:rgba(56,189,248,.24)}
-.cbtn:active{transform:scale(.95)}
-.cbtn.off{background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.25)}
-.cbtn.accept{
-  background:linear-gradient(135deg,#10b981,#34d399);color:#04121f;border:none;
-  box-shadow:0 10px 30px rgba(52,211,153,.45);animation:ring 1.5s infinite;
-}
-@keyframes ring{0%,100%{box-shadow:0 10px 30px rgba(52,211,153,.45)}50%{box-shadow:0 10px 46px rgba(52,211,153,.75)}}
-.cbtn.decline{
-  background:linear-gradient(135deg,#ef4444,#f87171);color:#fff;border:none;
-  box-shadow:0 10px 30px rgba(248,113,113,.45);
-}
+.call-btn svg{width:25px;height:25px}
+.call-btn:hover{transform:translateY(-3px) scale(1.05)}
+.call-btn:active{transform:scale(.94)}
+.call-btn.accept{background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 10px 28px rgba(34,197,94,.4)}
+.call-btn.decline{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 10px 28px rgba(239,68,68,.4)}
+.call-btn.mute{background:var(--panel3);border:1px solid var(--border);color:var(--muted);width:52px;height:52px}
+.call-btn.mute.off{background:linear-gradient(135deg,#f59e0b,#d97706);color:#1a1206;border:none}
+.call-btn.mute svg{width:21px;height:21px}
+.call-btn.decline svg.hangup-ico{transform:rotate(135deg)}
 
-/* ============ ТОСТ ============ */
-.toast{
-  position:fixed;bottom:30px;left:50%;transform:translate(-50%,26px);
-  background:linear-gradient(135deg,rgba(19,32,56,.98),rgba(10,17,32,.98));
-  border:1px solid var(--line2);color:var(--text);
-  padding:13px 24px;border-radius:14px;font-size:13.5px;font-weight:600;
-  box-shadow:0 16px 44px rgba(0,0,0,.6), 0 0 30px rgba(14,165,233,.14);
-  opacity:0;transition:.3s cubic-bezier(.2,.9,.3,1.2);z-index:200;pointer-events:none;
+/* ============================ ТОСТ ============================ */
+#toast{
+  position:fixed;left:50%;bottom:32px;transform:translate(-50%,80px);
+  background:var(--panel3);border:1px solid var(--border);color:var(--text);
+  padding:12px 22px;border-radius:13px;font-size:13.5px;font-weight:600;z-index:2000;
+  opacity:0;pointer-events:none;transition:.3s cubic-bezier(.2,.9,.3,1.2);
+  box-shadow:0 16px 44px rgba(0,0,0,.6);max-width:calc(100vw - 40px);text-align:center;
 }
-.toast.show{opacity:1;transform:translate(-50%,0)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
 
-@media(max-width:760px){
-  .sidebar{width:100%;flex:1 1 100%;border-right:none}
-  .chat{position:fixed;inset:0;z-index:20}
-  #app.chat-closed .chat{display:none}
-  #local-video{width:110px;height:80px;bottom:120px;right:14px}
-  .messages{padding:16px 14px 8px}
-  .msg{max-width:84%}
+/* ============================ МОБИЛЬНАЯ ВЕРСИЯ ============================ */
+@media (max-width:760px){
+  .sidebar{position:absolute;inset:0;width:100%;flex:1 1 100%;z-index:5;border-right:none}
+  .app.chat-open .sidebar{display:none}
+  .chat{display:none}
+  .app.chat-open .chat{display:flex}
+  .btn-back{display:grid}
+  .msg-row{max-width:88%}
 }
 </style>
 </head>
 <body>
 
-<!-- ================= АВТОРИЗАЦИЯ ================= -->
-<div id="auth">
+<!-- ==================== ЭКРАН ВХОДА ==================== -->
+<div class="auth" id="authScreen">
+  <div class="auth-bg"></div>
   <div class="auth-card">
-    <div class="logo">Mast</div>
-    <div class="tagline">Общайся. Звони. Будь на связи.</div>
-
-    <div class="auth-tabs">
-      <button class="auth-tab active" data-mode="login">Вход</button>
-      <button class="auth-tab" data-mode="register">Регистрация</button>
+    <div class="brand">
+      <div class="brand-logo">M</div>
+      <div>
+        <h1>Mast</h1>
+        <p>Общайся. Звони. Будь на связи.</p>
+      </div>
     </div>
 
-    <label class="fld">Юзернейм</label>
-    <input id="auth-username" class="inp" placeholder="например, alex_01" autocomplete="off" spellcheck="false">
+    <div class="auth-tabs">
+      <button class="auth-tab active" data-mode="login" type="button">Вход</button>
+      <button class="auth-tab" data-mode="register" type="button">Регистрация</button>
+    </div>
 
-    <label class="fld">Пароль</label>
-    <input id="auth-password" class="inp" type="password" placeholder="••••••••" autocomplete="off">
-
-    <button class="btn-primary" id="auth-submit">Войти</button>
-    <div class="auth-error" id="auth-error"></div>
+    <form id="authForm" autocomplete="off">
+      <label class="field">
+        <span>Юзернейм</span>
+        <input id="authUser" type="text" placeholder="например, alex" autocomplete="off" spellcheck="false" maxlength="20">
+      </label>
+      <label class="field">
+        <span>Пароль</span>
+        <input id="authPass" type="password" placeholder="••••••••" autocomplete="off" maxlength="64">
+      </label>
+      <label class="field" id="pass2Field" style="display:none">
+        <span>Повторите пароль</span>
+        <input id="authPass2" type="password" placeholder="••••••••" autocomplete="off" maxlength="64">
+      </label>
+      <div class="auth-error" id="authError"></div>
+      <button class="btn-primary" type="submit" id="authSubmit">Войти</button>
+    </form>
+    <div class="auth-note">Данные хранятся локально в браузере.<br>Откройте вторую вкладку, чтобы войти другим аккаунтом.</div>
   </div>
 </div>
 
-<!-- ================= ПРИЛОЖЕНИЕ ================= -->
-<div id="app" class="hidden">
+<!-- ==================== ПРИЛОЖЕНИЕ ==================== -->
+<div class="app hidden" id="app">
 
+  <!-- Сайдбар -->
   <aside class="sidebar">
-    <div class="side-head">
-      <div class="me">
-        <div id="me-avatar"></div>
-        <div style="min-width:0">
-          <div class="me-name" id="me-name">—</div>
-          <div class="me-status">в сети</div>
-        </div>
+    <div class="side-header">
+      <div id="meAvatar"></div>
+      <div class="me-name" id="meName">—</div>
+      <div class="side-actions">
+        <button class="icon-btn accent" id="btnAddFriend" title="Добавить друга по юзернейму">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </button>
+        <button class="icon-btn" id="btnSettings" title="Настройки">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </button>
+        <button class="icon-btn" id="btnLogout" title="Выйти">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
       </div>
-      <button class="icon-btn" id="btn-profile" title="Профиль">⚙</button>
     </div>
 
-    <div class="search">
-      <input id="search" class="inp" placeholder="Поиск по юзернейму...">
+    <div class="search-wrap">
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="searchInput" type="text" placeholder="Поиск по друзьям..." autocomplete="off">
+      </div>
     </div>
 
     <div class="side-tabs">
-      <button class="side-tab active" data-tab="chats">Чаты</button>
-      <button class="side-tab" data-tab="friends">Друзья</button>
-      <button class="side-tab" data-tab="requests">Заявки<span class="badge" id="req-badge"></span></button>
+      <button class="side-tab active" data-tab="friends">Друзья</button>
+      <button class="side-tab" data-tab="requests">Запросы <span class="badge hidden" id="reqBadge">0</span></button>
     </div>
 
-    <div class="list" id="list"></div>
+    <div class="list" id="listFriends"></div>
+    <div class="list hidden" id="listRequests"></div>
   </aside>
 
-  <main class="chat" id="chat">
-    <div class="empty" id="empty-state">
-      <div class="empty-icon">💬</div>
+  <!-- Чат -->
+  <main class="chat">
+    <div class="chat-empty" id="chatEmpty">
+      <div class="big">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      </div>
       <h3>Выберите чат</h3>
-      <p>Откройте диалог слева или добавьте нового друга по юзернейму во вкладке «Друзья»</p>
+      <p>Нажмите «+» в левом верхнем углу, чтобы найти друга по юзернейму</p>
     </div>
 
-    <div class="chat-inner hidden" id="chat-inner">
-      <header class="chat-head">
-        <div id="chat-avatar"></div>
-        <div class="chat-head-info">
-          <div class="chat-name" id="chat-name">—</div>
-          <div class="chat-sub" id="chat-sub">—</div>
+    <div class="chat-main hidden" id="chatMain" style="display:flex;flex-direction:column;flex:1;min-height:0">
+      <header class="chat-header">
+        <button class="btn-back" id="btnBack">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div id="peerAvatar"></div>
+        <div class="peer-main">
+          <div class="peer-name" id="peerName">—</div>
+          <div class="peer-status" id="peerStatus">не в сети</div>
         </div>
         <div class="chat-actions">
-          <button class="icon-btn" id="btn-audio" title="Аудиозвонок">📞</button>
-          <button class="icon-btn" id="btn-video" title="Видеозвонок">🎥</button>
+          <button class="icon-btn accent" id="btnCall" title="Позвонить">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </button>
         </div>
       </header>
 
       <div class="messages" id="messages"></div>
-      <div class="typing" id="typing"></div>
 
-      <div class="composer">
-        <input id="msg-input" class="inp" placeholder="Написать сообщение..." autocomplete="off">
-        <button class="send-btn" id="btn-send">➤</button>
-      </div>
+      <form class="composer" id="composer" autocomplete="off">
+        <input id="msgInput" type="text" placeholder="Написать сообщение..." autocomplete="off" maxlength="2000">
+        <button class="send-btn" type="submit" title="Отправить">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </form>
     </div>
   </main>
 </div>
 
-<!-- ================= ПРОФИЛЬ ================= -->
-<div id="profile" class="modal hidden">
-  <div class="modal-card">
-    <button class="modal-close" id="prof-close">✕</button>
-    <h3>Профиль</h3>
-
-    <div class="prof-avatar-wrap">
-      <div id="prof-avatar"></div>
-      <label class="upload-btn">Сменить аватар
-        <input type="file" id="avatar-input" accept="image/*" hidden>
-      </label>
-    </div>
-
-    <label class="fld">Юзернейм</label>
-    <input id="prof-username" class="inp" disabled style="opacity:.55">
-
-    <label class="fld">Отображаемое имя</label>
-    <input id="prof-name" class="inp" placeholder="Как вас зовут?" maxlength="30">
-
-    <label class="fld">О себе</label>
-    <input id="prof-bio" class="inp" placeholder="Пара слов о себе" maxlength="60">
-
+<!-- ==================== МОДАЛКА: ДОБАВИТЬ ДРУГА ==================== -->
+<div class="overlay hidden" id="addModal">
+  <div class="modal">
+    <h2>Добавить друга</h2>
+    <div class="sub">Введите юзернейм пользователя Mast, чтобы отправить запрос</div>
+    <label class="field">
+      <span>Юзернейм</span>
+      <input id="addInput" type="text" placeholder="например, alex" autocomplete="off" spellcheck="false" maxlength="20">
+    </label>
+    <div class="modal-error" id="addError"></div>
     <div class="modal-actions">
-      <button class="btn-ghost" id="logout-btn">Выйти</button>
-      <button class="btn-primary" id="prof-save">Сохранить</button>
+      <button class="btn-ghost" id="addCancel" type="button">Отмена</button>
+      <button class="btn-accent" id="addConfirm" type="button">Отправить</button>
     </div>
   </div>
 </div>
 
-<!-- ================= ЗВОНОК ================= -->
-<div id="call" class="call-overlay hidden">
-  <video id="remote-video" autoplay playsinline></video>
-  <video id="local-video" autoplay playsinline muted class="hidden"></video>
-
-  <div class="call-top">
-    <div id="call-avatar"></div>
-    <div class="call-name" id="call-name">—</div>
-    <div class="call-status" id="call-status">Вызов...</div>
+<!-- ==================== МОДАЛКА: НАСТРОЙКИ ==================== -->
+<div class="overlay hidden" id="setModal">
+  <div class="modal">
+    <h2>Профиль</h2>
+    <div class="sub">Настройте свою аватарку</div>
+    <div class="set-row">
+      <div class="set-avatar" id="setAvatarBtn" title="Сменить аватарку">
+        <div id="setAvatarPreview"></div>
+        <div class="cam">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        </div>
+      </div>
+      <div class="set-info">
+        <div class="u" id="setUsername">—</div>
+        <div class="s">Нажмите на аватарку, чтобы изменить</div>
+      </div>
+    </div>
+    <input type="file" id="setAvatarInput" accept="image/*" style="display:none">
+    <div class="modal-actions">
+      <button class="btn-ghost" id="setRemoveAvatar" type="button">Удалить фото</button>
+      <button class="btn-accent" id="setClose" type="button">Готово</button>
+    </div>
   </div>
-
-  <div class="call-controls" id="call-controls"></div>
 </div>
+
+<!-- ==================== ОВЕРЛЕЙ ЗВОНКА ==================== -->
+<div class="call-overlay hidden" id="callOverlay">
+  <div class="call-card">
+    <div class="call-av-wrap"><div id="callAvatar"></div></div>
+    <div class="call-name" id="callName">—</div>
+    <div class="call-status" id="callStatus">Вызов…</div>
+    <div class="call-timer" id="callTimer"></div>
+    <div class="call-actions">
+      <button class="call-btn mute hidden" id="callMute" title="Микрофон">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/></svg>
+      </button>
+      <button class="call-btn decline hidden" id="callDecline" title="Отклонить">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      </button>
+      <button class="call-btn decline hidden" id="callHangup" title="Завершить">
+        <svg class="hangup-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      </button>
+      <button class="call-btn accept hidden" id="callAccept" title="Принять">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+<audio id="remoteAudio" autoplay></audio>
 
 <script>
-/* =========================================================
-   Mast — мессенджер (одностраничное приложение)
-   Хранилище: localStorage + BroadcastChannel для синхронизации
-   между вкладками одного браузера.
-   ========================================================= */
+(function(){
+'use strict';
 
-/* ---------- Утилиты ---------- */
+/* ============================================================
+   КОНСТАНТЫ И УТИЛИТЫ
+   ============================================================ */
+const DB_KEY  = 'mast_db_v1';
+const SES_KEY = 'mast_session_v1';
 const $  = s => document.querySelector(s);
-const $$ = s => [...document.querySelectorAll(s)];
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $$ = s => Array.prototype.slice.call(document.querySelectorAll(s));
 
-const LS = {
-  get(k, d){ try{ const v = localStorage.getItem('mast_' + k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } },
-  set(k, v){ try{ localStorage.setItem('mast_' + k, JSON.stringify(v)); }catch(e){ console.warn('storage full', e); } }
-};
-
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function hueOf(str){
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) % 360;
+  return h;
+}
 function hashPass(s){
-  let h = 5381;
-  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
-  return 'm' + (h >>> 0).toString(36) + '_' + s.length;
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0; i < s.length; i++){
+    const ch = s.charCodeAt(i);
+    h1 = Math.imul(h1 ^ ch, 2654435761);
+    h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (h2 >>> 0).toString(16).padStart(8,'0') + (h1 >>> 0).toString(16).padStart(8,'0');
 }
-
-const COLORS = ['#0ea5e9','#38bdf8','#22d3ee','#3b82f6','#6366f1','#06b6d4','#8b5cf6','#0d9488'];
-function colorFor(u){ let h = 0; for (const ch of String(u)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return COLORS[h % COLORS.length]; }
-
-function avatarHTML(username, size = 44){
-  const u = users[username] || {};
-  if (u.avatar) return `<div class="avatar" style="width:${size}px;height:${size}px;background-image:url('${u.avatar}')"></div>`;
-  return `<div class="avatar" style="width:${size}px;height:${size}px;background:${colorFor(username)}">${esc(String(username).slice(0,2).toUpperCase())}</div>`;
-}
-
 function fmtTime(ts){
-  const d = new Date(ts);
-  return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+  return new Date(ts).toLocaleTimeString('ru-RU', {hour:'2-digit', minute:'2-digit'});
 }
-function fmtDay(ts){
-  const d = new Date(ts), now = new Date();
-  const d1 = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const d2 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const diff = Math.round((d2 - d1) / 86400000);
-  if (diff === 0) return 'Сегодня';
-  if (diff === 1) return 'Вчера';
-  return d.toLocaleDateString('ru-RU', { day:'numeric', month:'long' });
+function fmtDuration(ms){
+  const s = Math.max(0, Math.floor(ms/1000));
+  return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
 }
-function fmtDuration(sec){
-  const m = Math.floor(sec / 60), s = sec % 60;
-  return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-}
+function chatKey(a, b){ return [a, b].sort().join('::'); }
 
-function toast(msg){
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  requestAnimationFrame(() => t.classList.add('show'));
-  setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 320); }, 2600);
-}
-
-function resizeImage(file, maxSize, cb){
-  const img = new Image();
-  const url = URL.createObjectURL(file);
-  img.onload = () => {
-    const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
-    const w = Math.max(1, Math.round(img.width * scale));
-    const h = Math.max(1, Math.round(img.height * scale));
-    const c = document.createElement('canvas');
-    c.width = w; c.height = h;
-    c.getContext('2d').drawImage(img, 0, 0, w, h);
-    URL.revokeObjectURL(url);
-    cb(c.toDataURL('image/jpeg', 0.85));
-  };
-  img.onerror = () => { URL.revokeObjectURL(url); toast('Не удалось загрузить изображение'); };
-  img.src = url;
-}
-
-/* ---------- Состояние ---------- */
-let users        = LS.get('users', {});
-let friendsMap   = LS.get('friends', {});
-let requestsMap  = LS.get('requests', {});
-let messagesMap  = LS.get('messages', {});
-
+/* ============================================================
+   СОСТОЯНИЕ
+   ============================================================ */
+let db = { users:{}, chats:{} };
 let me = null;
 let currentChat = null;
-let activeTab = 'chats';
-let searchQuery = '';
-const online = new Map(); // username -> timestamp
+let online = {};        // username -> timestamp последнего пинга
+let lastMsgCount = -1;
+let bc = null;
 
-function reloadState(){
-  users       = LS.get('users', {});
-  friendsMap  = LS.get('friends', {});
-  requestsMap = LS.get('requests', {});
-  messagesMap = LS.get('messages', {});
-}
-function saveState(){
-  LS.set('users', users);
-  LS.set('friends', friendsMap);
-  LS.set('requests', requestsMap);
-  LS.set('messages', messagesMap);
-}
+try { bc = new BroadcastChannel('mast_bus'); } catch(e){ bc = null; }
 
-/* ---------- Канал синхронизации ---------- */
-const bc = new BroadcastChannel('mast');
+/* ============================================================
+   ХРАНИЛИЩЕ
+   ============================================================ */
+function loadDB(){
+  try {
+    const raw = localStorage.getItem(DB_KEY);
+    db = raw ? JSON.parse(raw) : { users:{}, chats:{} };
+  } catch(e){ db = { users:{}, chats:{} }; }
+  if (!db.users || typeof db.users !== 'object') db.users = {};
+  if (!db.chats || typeof db.chats !== 'object') db.chats = {};
 
-function commit(){
-  saveState();
-  bc.postMessage({ type: 'sync' });
-}
-
-bc.onmessage = e => {
-  const m = e.data;
-  if (!m || !m.type) return;
-
-  if (m.type === 'sync'){
-    reloadState();
-    if (me) renderAll();
+  // нормализация
+  for (const k in db.users){
+    const u = db.users[k];
+    if (!u || typeof u !== 'object'){ delete db.users[k]; continue; }
+    u.username = k;
+    if (!Array.isArray(u.friends))  u.friends  = [];
+    if (!Array.isArray(u.incoming)) u.incoming = [];
+    if (!Array.isArray(u.outgoing)) u.outgoing = [];
+    if (u.avatar === undefined) u.avatar = null;
+    if (typeof u.pass !== 'string') u.pass = '';
   }
-  else if (m.type === 'presence'){
-    if (m.user && m.user !== me){
-      const wasOffline = !online.has(m.user);
-      online.set(m.user, Date.now());
-      if (wasOffline) renderList();
+  // чистим битые чаты
+  for (const k in db.chats){
+    if (!Array.isArray(db.chats[k])) delete db.chats[k];
+  }
+}
+
+function saveDB(broadcast){
+  if (broadcast === undefined) broadcast = true;
+  try {
+    localStorage.setItem(DB_KEY, JSON.stringify(db));
+  } catch(e){
+    toast('Хранилище переполнено — попробуйте аватарку поменьше');
+    return;
+  }
+  if (broadcast && bc) bc.postMessage({ kind:'db' });
+}
+
+function getMessages(a, b){
+  const k = chatKey(a, b);
+  if (!Array.isArray(db.chats[k])) db.chats[k] = [];
+  return db.chats[k];
+}
+
+/* ============================================================
+   АВАТАРКИ
+   ============================================================ */
+function avatarHTML(username, size){
+  const u = db.users[username];
+  if (u && u.avatar){
+    return '<div class="av" style="width:'+size+'px;height:'+size+'px"><img src="'+u.avatar.replace(/"/g,'&quot;')+'" alt=""></div>';
+  }
+  const name = String(username || '?');
+  const letter = name.charAt(0).toUpperCase();
+  const h = hueOf(name);
+  const fs = Math.round(size * 0.42);
+  return '<div class="av" style="width:'+size+'px;height:'+size+'px;font-size:'+fs+'px;'+
+    'background:linear-gradient(135deg,hsl('+h+',72%,48%),hsl('+((h+45)%360)+',72%,36%))">'+esc(letter)+'</div>';
+}
+
+/* ============================================================
+   ТОСТ
+   ============================================================ */
+let toastTimer = null;
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* ============================================================
+   ПРИСУТСТВИЕ (онлайн-статусы)
+   ============================================================ */
+let pingTimer = null;
+let lastOnlineSig = '';
+
+function isOnline(u){
+  return !!online[u] && (Date.now() - online[u] < 6500);
+}
+function onlineSig(){
+  return Object.keys(online).filter(isOnline).sort().join(',');
+}
+function startPresence(){
+  stopPresence();
+  const ping = () => {
+    online[me] = Date.now();
+    if (bc) bc.postMessage({ kind:'ping', user: me });
+  };
+  ping();
+  pingTimer = setInterval(() => {
+    ping();
+    const sig = onlineSig();
+    if (sig !== lastOnlineSig){
+      lastOnlineSig = sig;
+      renderSidebar();
+      renderChat();
     }
-  }
-  else if (m.type === 'who'){
-    if (me) bc.postMessage({ type: 'presence', user: me });
-  }
-  else if (m.type === 'offline'){
-    if (online.delete(m.user)) renderList();
-  }
-  else if (m.type === 'typing'){
-    if (m.to === me && m.from === currentChat) showTyping();
-  }
-  else if (m.type.startsWith('call-')){
-    handleCallSignal(m);
-  }
-};
+  }, 2200);
+}
+function stopPresence(){
+  if (pingTimer){ clearInterval(pingTimer); pingTimer = null; }
+}
 
-/* ---------- Присутствие ---------- */
-setInterval(() => {
-  if (!me) return;
-  bc.postMessage({ type: 'presence', user: me });
-  const now = Date.now();
-  let changed = false;
-  for (const [u, t] of [...online]){
-    if (now - t > 6500){ online.delete(u); changed = true; }
-  }
-  if (changed) renderList();
-}, 2200);
-
-window.addEventListener('beforeunload', () => {
-  if (me) bc.postMessage({ type: 'offline', user: me });
-});
-
-/* =========================================================
+/* ============================================================
    АВТОРИЗАЦИЯ
-   ========================================================= */
+   ============================================================ */
 let authMode = 'login';
 
 $$('.auth-tab').forEach(tab => {
-  tab.onclick = () => {
+  tab.addEventListener('click', () => {
     authMode = tab.dataset.mode;
     $$('.auth-tab').forEach(t => t.classList.toggle('active', t === tab));
-    $('#auth-submit').textContent = authMode === 'login' ? 'Войти' : 'Создать аккаунт';
-    $('#auth-error').textContent = '';
-  };
+    $('#pass2Field').style.display = authMode === 'register' ? 'block' : 'none';
+    $('#authSubmit').textContent = authMode === 'register' ? 'Создать аккаунт' : 'Войти';
+    $('#authError').textContent = '';
+  });
 });
 
-function authError(msg){ $('#auth-error').textContent = msg; }
+function showAuthError(msg){ $('#authError').textContent = msg; }
 
-$('#auth-submit').onclick = doAuth;
-$('#auth-password').addEventListener('keydown', e => { if (e.key === 'Enter') doAuth(); });
-$('#auth-username').addEventListener('keydown', e => { if (e.key === 'Enter') $('#auth-password').focus(); });
+$('#authForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const uname = $('#authUser').value.trim().toLowerCase();
+  const pass  = $('#authPass').value;
+  const pass2 = $('#authPass2').value;
 
-function doAuth(){
-  const u = $('#auth-username').value.trim().toLowerCase();
-  const p = $('#auth-password').value;
-  authError('');
-
-  if (!u) return authError('Введите юзернейм');
-  if (!p) return authError('Введите пароль');
+  if (!uname){ return showAuthError('Введите юзернейм'); }
+  if (!/^[a-z0-9_]{3,20}$/.test(uname)){
+    return showAuthError('Юзернейм: 3–20 символов, латиница, цифры и _');
+  }
 
   if (authMode === 'register'){
-    if (!/^[a-z0-9_]{3,16}$/.test(u))
-      return authError('Юзернейм: 3–16 символов (a-z, 0-9, _)');
-    if (p.length < 4)
-      return authError('Пароль минимум 4 символа');
-    if (users[u])
-      return authError('Этот юзернейм уже занят');
+    if (pass.length < 4) return showAuthError('Пароль — минимум 4 символа');
+    if (pass !== pass2) return showAuthError('Пароли не совпадают');
+    if (db.users[uname]) return showAuthError('Этот юзернейм уже занят');
 
-    users[u] = {
-      username: u,
-      pass: hashPass(p),
-      avatar: null,
-      name: u,
-      bio: '',
-      created: Date.now(),
-      unread: {}
+    db.users[uname] = {
+      username: uname, pass: hashPass(pass), avatar: null,
+      friends: [], incoming: [], outgoing: [], created: Date.now()
     };
-    friendsMap[u]  = friendsMap[u]  || [];
-    requestsMap[u] = requestsMap[u] || [];
-    commit();
-    loginAs(u);
-    toast('Добро пожаловать в Mast, @' + u + '!');
+    saveDB();
+    doLogin(uname);
   } else {
-    if (!users[u]) return authError('Пользователь не найден');
-    if (users[u].pass !== hashPass(p)) return authError('Неверный пароль');
-    loginAs(u);
+    const u = db.users[uname];
+    if (!u) return showAuthError('Пользователь не найден');
+    if (u.pass !== hashPass(pass)) return showAuthError('Неверный пароль');
+    doLogin(uname);
   }
-}
+});
 
-function loginAs(username){
+function doLogin(username){
   me = username;
-  LS.set('session', username);
-
-  if (!users[me].unread) users[me].unread = {};
-  if (!friendsMap[me]) friendsMap[me] = [];
-  if (!requestsMap[me]) requestsMap[me] = [];
-  saveState();
-
-  $('#auth').classList.add('hidden');
-  $('#app').classList.remove('hidden');
-  $('#auth-password').value = '';
-
-  bc.postMessage({ type: 'who' });
-  bc.postMessage({ type: 'presence', user: me });
-
+  try { sessionStorage.setItem(SES_KEY, username); } catch(e){}
   currentChat = null;
-  activeTab = 'chats';
-  $$('.side-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'chats'));
+  lastMsgCount = -1;
 
+  $('#authScreen').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+  $('#authError').textContent = '';
+  $('#authPass').value = '';
+  $('#authPass2').value = '';
+
+  startPresence();
   renderAll();
 }
 
-function logout(){
-  if (me) bc.postMessage({ type: 'offline', user: me });
-  if (call) cleanupCall(true);
+function doLogout(){
+  if (call) hangUp(true);
+  if (bc) bc.postMessage({ kind:'bye', user: me });
+  stopPresence();
+  delete online[me];
   me = null;
   currentChat = null;
-  LS.set('session', null);
+  try { sessionStorage.removeItem(SES_KEY); } catch(e){}
+
   $('#app').classList.add('hidden');
-  $('#auth').classList.remove('hidden');
-  $('#profile').classList.add('hidden');
-  $('#auth-username').value = '';
-  $('#auth-password').value = '';
-  authError('');
+  $('#app').classList.remove('chat-open');
+  $('#authScreen').classList.remove('hidden');
 }
 
-/* =========================================================
-   РЕНДЕР
-   ========================================================= */
-function renderAll(){
-  if (!me) return;
-  renderMe();
-  renderList();
-  renderChat();
-}
+$('#btnLogout').addEventListener('click', doLogout);
 
-function renderMe(){
-  $('#me-avatar').innerHTML = avatarHTML(me, 44);
-  $('#me-name').textContent = users[me]?.name || me;
-}
+/* ============================================================
+   РЕНДЕР: САЙДБАР
+   ============================================================ */
+function renderSidebar(){
+  if (!me || !db.users[me]) return;
+  const u = db.users[me];
 
-/* ---------- Список (сайдбар) ---------- */
-function convKey(a, b){ return [a, b].sort().join('|'); }
+  $('#meAvatar').innerHTML = avatarHTML(me, 40);
+  $('#meName').textContent = me;
 
-function lastMsgTime(user){
-  const arr = messagesMap[convKey(me, user)] || [];
-  return arr.length ? arr[arr.length - 1].at : 0;
-}
+  const q = $('#searchInput').value.trim().toLowerCase();
+  const friends = u.friends
+    .filter(f => db.users[f])
+    .filter(f => !q || f.indexOf(q) !== -1)
+    .sort((a, b) => {
+      const oa = isOnline(a) ? 0 : 1, ob = isOnline(b) ? 0 : 1;
+      if (oa !== ob) return oa - ob;
+      return a.localeCompare(b);
+    });
 
-function renderList(){
-  if (!me) return;
-  const list = $('#list');
-  const q = searchQuery.trim().toLowerCase();
-
-  // счётчик заявок
-  const reqs = (requestsMap[me] || []);
-  const badge = $('#req-badge');
-  badge.textContent = reqs.length;
-  badge.classList.toggle('show', reqs.length > 0);
-
-  /* --- ЧАТЫ --- */
-  if (activeTab === 'chats'){
-    let items = (friendsMap[me] || []).slice();
-    if (q) items = items.filter(u => u.includes(q) || (users[u]?.name || '').toLowerCase().includes(q));
-    items.sort((a, b) => lastMsgTime(b) - lastMsgTime(a));
-
-    if (!items.length){
-      list.innerHTML = `<div class="empty-block"><div class="ico">👥</div><b>Пока нет чатов</b>
-        Добавьте друга во вкладке «Друзья», чтобы начать общение</div>`;
-      return;
-    }
-
-    list.innerHTML = items.map(u => {
-      const key = convKey(me, u);
-      const msgs = messagesMap[key] || [];
+  const box = $('#listFriends');
+  if (!friends.length){
+    box.innerHTML = '<div class="empty-list">' +
+      (u.friends.length ? 'Ничего не найдено' : 'Пока нет друзей.<br>Нажмите <b>+</b> вверху,<br>чтобы добавить по юзернейму') +
+      '</div>';
+  } else {
+    box.innerHTML = friends.map(f => {
+      const msgs = db.chats[chatKey(me, f)] || [];
       const last = msgs[msgs.length - 1];
-      const unread = (users[me].unread || {})[key] || 0;
-      let preview = 'Нет сообщений';
-      if (last) preview = (last.from === me ? 'Вы: ' : '') + last.text;
-
-      return `<div class="row ${currentChat === u ? 'active' : ''}" data-user="${esc(u)}">
-        <div class="row-av">${avatarHTML(u, 46)}${online.has(u) ? '<span class="dot"></span>' : ''}</div>
-        <div class="row-main">
-          <div class="row-top">
-            <span class="row-name">${esc(users[u]?.name || u)}</span>
-            <span class="row-time">${last ? fmtTime(last.at) : ''}</span>
-          </div>
-          <div class="row-bottom">
-            <span class="row-prev">${esc(preview)}</span>
-            ${unread ? `<span class="unread">${unread > 99 ? '99+' : unread}</span>` : ''}
-          </div>
-        </div>
-      </div>`;
+      let lastText = 'Нет сообщений';
+      if (last){
+        const t = last.text.length > 34 ? last.text.slice(0, 34) + '…' : last.text;
+        lastText = (last.from === me ? 'Вы: ' : '') + t;
+      }
+      const on = isOnline(f);
+      return '<div class="friend' + (currentChat === f ? ' active' : '') + '" data-user="' + esc(f) + '">' +
+        '<div class="av-wrap">' + avatarHTML(f, 44) + (on ? '<span class="on-dot"></span>' : '') + '</div>' +
+        '<div class="friend-main">' +
+          '<div class="friend-name">' + esc(f) + '</div>' +
+          '<div class="friend-last">' + esc(lastText) + '</div>' +
+        '</div></div>';
     }).join('');
-    return;
-  }
-
-  /* --- ДРУЗЬЯ --- */
-  if (activeTab === 'friends'){
-    let items = (friendsMap[me] || []).slice();
-    if (q) items = items.filter(u => u.includes(q) || (users[u]?.name || '').toLowerCase().includes(q));
-    items.sort((a, b) => a.localeCompare(b));
-
-    let html = `<div class="add-friend">
-      <input class="inp" id="add-friend-input" placeholder="Юзернейм друга..." autocomplete="off" spellcheck="false">
-      <button id="add-friend-btn" title="Отправить заявку">+</button>
-    </div>`;
-
-    if (!items.length){
-      html += `<div class="empty-block"><div class="ico">🔍</div><b>Список друзей пуст</b>
-        Введите юзернейм выше и отправьте заявку</div>`;
-    } else {
-      html += items.map(u => `
-        <div class="row" data-user="${esc(u)}">
-          <div class="row-av">${avatarHTML(u, 46)}${online.has(u) ? '<span class="dot"></span>' : ''}</div>
-          <div class="row-main">
-            <div class="row-top"><span class="row-name">${esc(users[u]?.name || u)}</span></div>
-            <div class="row-bottom"><span class="row-prev">@${esc(u)} · ${online.has(u) ? 'в сети' : 'не в сети'}</span></div>
-          </div>
-          <div class="row-actions">
-            <button class="mini-btn" data-act="chat" data-user="${esc(u)}" title="Написать">💬</button>
-            <button class="mini-btn danger" data-act="unfriend" data-user="${esc(u)}" title="Удалить">✕</button>
-          </div>
-        </div>`).join('');
-    }
-    list.innerHTML = html;
-
-    const inp = $('#add-friend-input');
-    const btn = $('#add-friend-btn');
-    const send = () => { sendFriendRequest(inp.value); inp.value = ''; };
-    btn.onclick = send;
-    inp.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
-    return;
-  }
-
-  /* --- ЗАЯВКИ --- */
-  if (activeTab === 'requests'){
-    if (!reqs.length){
-      list.innerHTML = `<div class="empty-block"><div class="ico">📨</div><b>Заявок нет</b>
-        Здесь появятся запросы в друзья от других пользователей</div>`;
-      return;
-    }
-    list.innerHTML = reqs.map(r => `
-      <div class="row" data-user="${esc(r.from)}">
-        <div class="row-av">${avatarHTML(r.from, 46)}${online.has(r.from) ? '<span class="dot"></span>' : ''}</div>
-        <div class="row-main">
-          <div class="row-top"><span class="row-name">${esc(users[r.from]?.name || r.from)}</span></div>
-          <div class="row-bottom"><span class="row-prev">@${esc(r.from)} · хочет добавить вас</span></div>
-        </div>
-        <div class="row-actions">
-          <button class="mini-btn ok" data-act="accept" data-user="${esc(r.from)}" title="Принять">✓</button>
-          <button class="mini-btn danger" data-act="decline" data-user="${esc(r.from)}" title="Отклонить">✕</button>
-        </div>
-      </div>`).join('');
   }
 }
 
-/* ---------- Делегирование кликов по списку ---------- */
-$('#list').addEventListener('click', e => {
-  const btn = e.target.closest('button[data-act]');
-  if (btn){
-    e.stopPropagation();
-    const u = btn.dataset.user;
-    const act = btn.dataset.act;
-    if (act === 'chat'){ openChat(u); if (window.innerWidth <= 760) $('#app').classList.remove('chat-closed'); }
-    if (act === 'unfriend') removeFriend(u);
-    if (act === 'accept') acceptRequest(u);
-    if (act === 'decline') declineRequest(u);
-    return;
-  }
-  const row = e.target.closest('.row');
-  if (row && row.dataset.user){
-    openChat(row.dataset.user);
-    if (window.innerWidth <= 760) $('#app').classList.remove('chat-closed');
-  }
-});
+/* ============================================================
+   РЕНДЕР: ЗАПРОСЫ
+   ============================================================ */
+const I_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+const I_X     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
 
-/* ---------- Вкладки ---------- */
-$$('.side-tab').forEach(tab => {
-  tab.onclick = () => {
-    activeTab = tab.dataset.tab;
-    $$('.side-tab').forEach(t => t.classList.toggle('active', t === tab));
-    renderList();
-  };
-});
+function renderRequests(){
+  if (!me || !db.users[me]) return;
+  const u = db.users[me];
+  const inReqs  = u.incoming.filter(x => db.users[x] && x !== me);
+  const outReqs = u.outgoing.filter(x => db.users[x] && x !== me);
 
-/* ---------- Поиск ---------- */
-$('#search').addEventListener('input', e => {
-  searchQuery = e.target.value;
-  renderList();
-});
-
-/* =========================================================
-   ДРУЗЬЯ
-   ========================================================= */
-function sendFriendRequest(rawUsername){
-  if (!me) return;
-  const target = String(rawUsername || '').trim().toLowerCase().replace(/^@/, '');
-
-  if (!target) return toast('Введите юзернейм');
-  if (target === me) return toast('Это ваш собственный юзернейм');
-  if (!users[target]) return toast('Пользователь @' + target + ' не найден');
-  if ((friendsMap[me] || []).includes(target)) return toast('@' + target + ' уже в друзьях');
-
-  if ((requestsMap[target] || []).some(r => r.from === me))
-    return toast('Заявка уже отправлена');
-
-  // если от него уже есть заявка — принимаем сразу
-  if ((requestsMap[me] || []).some(r => r.from === target)){
-    acceptRequest(target);
-    return;
-  }
-
-  requestsMap[target] = requestsMap[target] || [];
-  requestsMap[target].push({ from: me, at: Date.now() });
-
-  commit();
-  renderList();
-  toast('Заявка отправлена @' + target);
-}
-
-function acceptRequest(from){
-  requestsMap[me] = (requestsMap[me] || []).filter(r => r.from !== from);
-
-  friendsMap[me] = friendsMap[me] || [];
-  if (!friendsMap[me].includes(from)) friendsMap[me].push(from);
-
-  friendsMap[from] = friendsMap[from] || [];
-  if (!friendsMap[from].includes(me)) friendsMap[from].push(me);
-
-  commit();
-  renderAll();
-  toast('@' + from + ' теперь у вас в друзьях');
-}
-
-function declineRequest(from){
-  requestsMap[me] = (requestsMap[me] || []).filter(r => r.from !== from);
-  commit();
-  renderList();
-  toast('Заявка отклонена');
-}
-
-function removeFriend(u){
-  if (!confirm('Удалить @' + u + ' из друзей?')) return;
-  friendsMap[me] = (friendsMap[me] || []).filter(x => x !== u);
-  friendsMap[u]  = (friendsMap[u]  || []).filter(x => x !== me);
-  if (currentChat === u) currentChat = null;
-  commit();
-  renderAll();
-}
-
-/* =========================================================
-   ЧАТ
-   ========================================================= */
-function openChat(username){
-  if (!users[username]) return;
-  currentChat = username;
-
-  const key = convKey(me, username);
-  users[me].unread = users[me].unread || {};
-  if (users[me].unread[key]){ delete users[me].unread[key]; saveState(); }
-
-  renderChat();
-  renderList();
-  setTimeout(() => $('#msg-input')?.focus(), 50);
-}
-
-function renderChat(){
-  if (!me) return;
-
-  if (!currentChat){
-    $('#empty-state').classList.remove('hidden');
-    $('#chat-inner').classList.add('hidden');
-    return;
-  }
-
-  $('#empty-state').classList.add('hidden');
-  $('#chat-inner').classList.remove('hidden');
-
-  const u = currentChat;
-  const isFriend = (friendsMap[me] || []).includes(u);
-
-  $('#chat-avatar').innerHTML = avatarHTML(u, 44);
-  $('#chat-name').textContent = users[u]?.name || u;
-
-  const sub = $('#chat-sub');
-  if (online.has(u)){ sub.textContent = 'в сети'; sub.classList.add('online'); }
-  else { sub.textContent = '@' + u + ' · не в сети'; sub.classList.remove('online'); }
-
-  $('#btn-audio').disabled = !isFriend;
-  $('#btn-video').disabled = !isFriend;
-
-  renderMessages();
-}
-
-function renderMessages(){
-  const box = $('#messages');
-  if (!currentChat) return;
-
-  const key = convKey(me, currentChat);
-  const msgs = messagesMap[key] || [];
-
-  if (!msgs.length){
-    box.innerHTML = `<div class="chat-empty">Начните переписку с <b>@${esc(currentChat)}</b> 👋</div>`;
-    return;
+  const badge = $('#reqBadge');
+  if (inReqs.length){
+    badge.textContent = inReqs.length;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
   }
 
   let html = '';
-  let lastDay = '';
-  for (const m of msgs){
-    const day = new Date(m.at).toDateString();
-    if (day !== lastDay){
-      lastDay = day;
-      html += `<div class="day-sep"><span>${fmtDay(m.at)}</span></div>`;
-    }
-    html += `<div class="msg ${m.from === me ? 'out' : 'in'}">
-      <div class="bubble">${esc(m.text)}</div>
-      <div class="msg-time">${fmtTime(m.at)}</div>
-    </div>`;
+
+  html += inReqs.map(x =>
+    '<div class="request">' + avatarHTML(x, 42) +
+      '<div class="req-main"><div class="req-name">' + esc(x) + '</div>' +
+      '<div class="req-sub">хочет добавить вас в друзья</div></div>' +
+      '<button class="req-btn ok" data-accept="' + esc(x) + '" title="Принять">' + I_CHECK + '</button>' +
+      '<button class="req-btn no" data-decline="' + esc(x) + '" title="Отклонить">' + I_X + '</button>' +
+    '</div>'
+  ).join('');
+
+  html += outReqs.map(x =>
+    '<div class="request">' + avatarHTML(x, 42) +
+      '<div class="req-main"><div class="req-name">' + esc(x) + '</div>' +
+      '<div class="req-sub">запрос отправлен…</div></div>' +
+      '<button class="req-btn no" data-cancel="' + esc(x) + '" title="Отменить">' + I_X + '</button>' +
+    '</div>'
+  ).join('');
+
+  if (!html) html = '<div class="empty-list">Запросов пока нет</div>';
+  $('#listRequests').innerHTML = html;
+}
+
+/* ============================================================
+   ДЕЙСТВИЯ С ДРУЗЬЯМИ
+   ============================================================ */
+function sendFriendRequest(){
+  const target = $('#addInput').value.trim().toLowerCase();
+  const err = $('#addError');
+  err.textContent = '';
+
+  if (!target) { err.textContent = 'Введите юзернейм'; return; }
+  if (target === me) { err.textContent = 'Нельзя добавить себя'; return; }
+  if (!db.users[target]) { err.textContent = 'Пользователь не найден'; return; }
+
+  const u = db.users[me];
+  if (u.friends.indexOf(target) !== -1) { err.textContent = 'Уже в друзьях'; return; }
+  if (u.outgoing.indexOf(target) !== -1) { err.textContent = 'Запрос уже отправлен'; return; }
+
+  // взаимный запрос — сразу друзья
+  if (u.incoming.indexOf(target) !== -1){
+    acceptRequest(target);
+    $('#addModal').classList.add('hidden');
+    toast('Теперь вы друзья с ' + target);
+    return;
   }
-  box.innerHTML = html;
-  box.scrollTop = box.scrollHeight;
+
+  u.outgoing.push(target);
+  const t = db.users[target];
+  if (t.incoming.indexOf(me) === -1) t.incoming.push(me);
+
+  saveDB();
+  renderAll();
+  $('#addModal').classList.add('hidden');
+  toast('Запрос отправлен: ' + target);
 }
 
-function sendMessage(){
-  const input = $('#msg-input');
-  const text = input.value.trim();
-  if (!text || !currentChat || !me) return;
-
-  const key = convKey(me, currentChat);
-  messagesMap[key] = messagesMap[key] || [];
-  messagesMap[key].push({ from: me, text, at: Date.now() });
-
-  users[me].unread = users[me].unread || {};
-  delete users[me].unread[key];
-
-  input.value = '';
-  commit();
-  renderMessages();
-  renderList();
+function acceptRequest(from){
+  const u = db.users[me], o = db.users[from];
+  if (!u || !o) return;
+  u.incoming = u.incoming.filter(x => x !== from);
+  o.outgoing = o.outgoing.filter(x => x !== me);
+  if (u.friends.indexOf(from) === -1) u.friends.push(from);
+  if (o.friends.indexOf(me) === -1) o.friends.push(me);
+  saveDB();
+  renderAll();
+  toast('Теперь вы друзья с ' + from);
 }
 
-$('#btn-send').onclick = sendMessage;
-$('#msg-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
-});
-
-let typingSentAt = 0;
-$('#msg-input').addEventListener('input', () => {
-  if (!currentChat) return;
-  const now = Date.now();
-  if (now - typingSentAt > 1200){
-    typingSentAt = now;
-    bc.postMessage({ type: 'typing', from: me, to: currentChat });
-  }
-});
-
-let typingTimer = null;
-function showTyping(){
-  const el = $('#typing');
-  el.innerHTML = `<span class="tdots"><span></span><span></span><span></span></span> печатает...`;
-  clearTimeout(typingTimer);
-  typingTimer = setTimeout(() => { el.innerHTML = ''; }, 2200);
+function declineRequest(from){
+  const u = db.users[me];
+  if (!u) return;
+  u.incoming = u.incoming.filter(x => x !== from);
+  const o = db.users[from];
+  if (o) o.outgoing = o.outgoing.filter(x => x !== me);
+  saveDB();
+  renderAll();
+  toast('Запрос отклонён');
 }
 
-/* =========================================================
-   ПРОФИЛЬ
-   ========================================================= */
-$('#btn-profile').onclick = () => {
-  const u = users[me];
-  $('#prof-avatar').innerHTML = avatarHTML(me, 96);
-  $('#prof-username').value = '@' + me;
-  $('#prof-name').value = u.name || me;
-  $('#prof-bio').value = u.bio || '';
-  $('#profile').classList.remove('hidden');
-};
+function cancelRequest(to){
+  const u = db.users[me];
+  if (!u) return;
+  u.outgoing = u.outgoing.filter(x => x !== to);
+  const o = db.users[to];
+  if (o) o.incoming = o.incoming.filter(x => x !== me);
+  saveDB();
+  renderAll();
+  toast('Запрос отменён');
+}
 
-$('#prof-close').onclick = () => $('#profile').classList.add('hidden');
-$('#profile').addEventListener('click', e => { if (e.target.id === 'profile') $('#profile').classList.add('hidden'); });
-
-$('#avatar-input').addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  if (!file.type.startsWith('image/')) return toast('Выберите изображение');
-  resizeImage(file, 256, dataUrl => {
-    users[me].avatar = dataUrl;
-    commit();
-    $('#prof-avatar').innerHTML = avatarHTML(me, 96);
-    renderMe();
-    renderList();
-    renderChat();
-    toast('Аватар обновлён');
-  });
-  e.target.value = '';
-});
-
-$('#prof-save').onclick = () => {
-  users[me].name = $('#prof-name').value.trim() || me;
-  users[me].bio = $('#prof-bio').value.trim();
-  commit();
-  renderMe();
-  renderList();
+/* ============================================================
+   РЕНДЕР: ЧАТ
+   ============================================================ */
+function openChat(username){
+  currentChat = username;
+  lastMsgCount = -1;
+  $('#app').classList.add('chat-open');
+  renderSidebar();
   renderChat();
-  $('#profile').classList.add('hidden');
-  toast('Профиль сохранён');
-};
-
-$('#logout-btn').onclick = logout;
-
-/* =========================================================
-   ЗВОНКИ (WebRTC + сигналинг через BroadcastChannel)
-   ========================================================= */
-let call = null;          // {peer, video, incoming, pc, localStream, offer, pending, connected}
-let callTimerInt = null;
-let callSeconds = 0;
-
-const RTC_CONFIG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
-
-async function getLocalStream(video){
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return null;
-  try {
-    return await navigator.mediaDevices.getUserMedia({
-      audio: true,
-      video: video ? { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' } : false
-    });
-  } catch (err){
-    console.warn('media error', err);
-    return null;
-  }
 }
 
-function attachLocalTracks(pc){
+function renderChat(){
+  const empty = $('#chatEmpty');
+  const main  = $('#chatMain');
+
+  if (!me || !currentChat || !db.users[currentChat] || !db.users[me] ||
+      db.users[me].friends.indexOf(currentChat) === -1){
+    empty.classList.remove('hidden');
+    main.classList.add('hidden');
+    $('#app').classList.remove('chat-open');
+    return;
+  }
+
+  empty.classList.add('hidden');
+  main.classList.remove('hidden');
+
+  $('#peerAvatar').innerHTML = avatarHTML(currentChat, 44);
+  $('#peerName').textContent = currentChat;
+
+  const on = isOnline(currentChat);
+  const ps = $('#peerStatus');
+  ps.textContent = on ? 'в сети' : 'не в сети';
+  ps.className = 'peer-status' + (on ? ' online' : '');
+
+  const msgs = getMessages(me, currentChat);
+  const box = $('#messages');
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 80;
+
+  box.innerHTML = msgs.map(m => {
+    const mine = m.from === me;
+    return '<div class="msg-row ' + (mine ? 'mine' : 'theirs') + '">' +
+      (mine ? '' : '<div class="msg-av">' + avatarHTML(m.from, 28) + '</div>') +
+      '<div class="bubble">' +
+        '<span class="msg-text">' + esc(m.text) + '</span>' +
+        '<span class="msg-time">' + fmtTime(m.ts) + '</span>' +
+      '</div></div>';
+  }).join('');
+
+  if (msgs.length !== lastMsgCount || atBottom){
+    box.scrollTop = box.scrollHeight;
+  }
+  lastMsgCount = msgs.length;
+}
+
+/* ============================================================
+   ОБЩИЙ РЕНДЕР
+   ============================================================ */
+function renderAll(){
+  renderSidebar();
+  renderRequests();
+  renderChat();
+}
+
+/* ============================================================
+   ОБРАБОТЧИКИ ИНТЕРФЕЙСА
+   ============================================================ */
+// поиск
+$('#searchInput').addEventListener('input', renderSidebar);
+
+// переключение вкладок
+$$('.side-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    $$('.side-tab').forEach(t => t.classList.toggle('active', t === tab));
+    const isFriends = tab.dataset.tab === 'friends';
+    $('#listFriends').classList.toggle('hidden', !isFriends);
+    $('#listRequests').classList.toggle('hidden', isFriends);
+  });
+});
+
+// клик по другу
+$('#listFriends').addEventListener('click', e => {
+  const el = e.target.closest('.friend');
+  if (!el) return;
+  openChat(el.dataset.user);
+});
+
+// клик по запросам
+$('#listRequests').addEventListener('click', e => {
+  const acc = e.target.closest('[data-accept]');
+  if (acc) return acceptRequest(acc.dataset.accept);
+  const dec = e.target.closest('[data-decline]');
+  if (dec) return declineRequest(dec.dataset.decline);
+  const can = e.target.closest('[data-cancel]');
+  if (can) return cancelRequest(can.dataset.cancel);
+});
+
+// назад (мобильная версия)
+$('#btnBack').addEventListener('click', () => {
+  $('#app').classList.remove('chat-open');
+  currentChat = null;
+  renderChat();
+  renderSidebar();
+});
+
+// отправка сообщения
+$('#composer').addEventListener('submit', e => {
+  e.preventDefault();
+  const text = $('#msgInput').value.trim();
+  if (!text || !currentChat) return;
+  if (!db.users[currentChat] || !db.users[me].friends.indexOf) return;
+  if (db.users[me].friends.indexOf(currentChat) === -1) return;
+
+  const msgs = getMessages(me, currentChat);
+  msgs.push({ from: me, to: currentChat, text: text, ts: Date.now() });
+
+  $('#msgInput').value = '';
+  saveDB();
+  lastMsgCount = -1;
+  renderChat();
+  renderSidebar();
+});
+
+/* ============================================================
+   МОДАЛКА «ДОБАВИТЬ ДРУГА»
+   ============================================================ */
+$('#btnAddFriend').addEventListener('click', () => {
+  $('#addInput').value = '';
+  $('#addError').textContent = '';
+  $('#addModal').classList.remove('hidden');
+  setTimeout(() => $('#addInput').focus(), 50);
+});
+$('#addCancel').addEventListener('click', () => $('#addModal').classList.add('hidden'));
+$('#addConfirm').addEventListener('click', sendFriendRequest);
+$('#addInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter'){ e.preventDefault(); sendFriendRequest(); }
+});
+$('#addModal').addEventListener('click', e => {
+  if (e.target === $('#addModal')) $('#addModal').classList.add('hidden');
+});
+
+/* ============================================================
+   МОДАЛКА «НАСТРОЙКИ»
+   ============================================================ */
+function renderSettings(){
+  if (!me || !db.users[me]) return;
+  $('#setAvatarPreview').innerHTML = avatarHTML(me, 64);
+  $('#setUsername').textContent = me;
+}
+
+$('#btnSettings').addEventListener('click', () => {
+  renderSettings();
+  $('#setModal').classList.remove('hidden');
+});
+$('#setClose').addEventListener('click', () => $('#setModal').classList.add('hidden'));
+$('#setModal').addEventListener('click', e => {
+  if (e.target === $('#setModal')) $('#setModal').classList.add('hidden');
+});
+$('#setAvatarBtn').addEventListener('click', () => $('#setAvatarInput').click());
+
+$('#setAvatarInput').addEventListener('change', e => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  if (!/^image\//.test(file.type)) { toast('Выберите изображение'); return; }
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const size = 220;
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const s = Math.min(img.width, img.height);
+        ctx.drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, size, size);
+        const data = canvas.toDataURL('image/jpeg', 0.82);
+        db.users[me].avatar = data;
+        saveDB();
+        renderSettings();
+        renderAll();
+        toast('Аватарка обновлена');
+      } catch(err){
+        toast('Не удалось обработать изображение');
+      }
+    };
+    img.onerror = () => toast('Не удалось открыть изображение');
+    img.src = ev.target.result;
+  };
+  reader.onerror = () => toast('Не удалось прочитать файл');
+  reader.readAsDataURL(file);
+});
+
+$('#setRemoveAvatar').addEventListener('click', () => {
+  if (!me || !db.users[me]) return;
+  db.users[me].avatar = null;
+  saveDB();
+  renderSettings();
+  renderAll();
+  toast('Аватарка удалена');
+});
+
+/* ============================================================
+   ЗВОНКИ
+   ============================================================ */
+let call = null;
+let callTimer = null;
+
+function sendSig(data){
+  if (bc) bc.postMessage({ kind:'sig', data: data });
+}
+
+function startCall(peer){
+  if (call) { toast('Уже идёт другой звонок'); return; }
+  if (!me || !db.users[me] || db.users[me].friends.indexOf(peer) === -1) return;
+
+  call = {
+    peer: peer, role: 'caller', state: 'calling',
+    pc: null, localStream: null, pendingIce: [], startedAt: null,
+    muted: false, timeout: null
+  };
+  call.timeout = setTimeout(() => {
+    if (call && call.state === 'calling'){
+      sendSig({ type:'end', from: me, to: peer });
+      endCall('Нет ответа');
+    }
+  }, 35000);
+
+  sendSig({ type:'invite', from: me, to: peer });
+  renderCall();
+}
+
+function acceptCall(){
+  if (!call || call.state !== 'incoming') return;
+  call.state = 'connecting';
+  renderCall();
+  sendSig({ type:'accept', from: me, to: call.peer });
+}
+
+function declineCall(){
+  if (!call) return;
+  const peer = call.peer;
+  endCall();
+  sendSig({ type:'decline', from: me, to: peer });
+}
+
+function hangUp(silent){
+  if (!call) return;
+  const peer = call.peer;
+  const wasTalking = call.state !== 'incoming';
+  endCall(silent ? null : 'Вызов завершён');
+  if (wasTalking) sendSig({ type:'end', from: me, to: peer });
+}
+
+function endCall(reason){
+  if (call && call.timeout) clearTimeout(call.timeout);
+  if (callTimer){ clearInterval(callTimer); callTimer = null; }
+
+  if (call){
+    if (call.localStream){
+      try { call.localStream.getTracks().forEach(t => t.stop()); } catch(e){}
+    }
+    if (call.pc){
+      try {
+        call.pc.onicecandidate = null;
+        call.pc.ontrack = null;
+        call.pc.onconnectionstatechange = null;
+        call.pc.close();
+      } catch(e){}
+    }
+  }
+  call = null;
+
+  const audio = $('#remoteAudio');
+  try { audio.srcObject = null; } catch(e){}
+
+  renderCall();
+  if (reason) toast(reason);
+}
+
+function toggleMute(){
+  if (!call) return;
+  call.muted = !call.muted;
   if (call.localStream){
-    call.localStream.getTracks().forEach(t => pc.addTrack(t, call.localStream));
-  } else {
-    pc.addTransceiver('audio', { direction: 'recvonly' });
-    if (call.video) pc.addTransceiver('video', { direction: 'recvonly' });
+    call.localStream.getAudioTracks().forEach(t => { t.enabled = !call.muted; });
   }
+  renderCall();
 }
 
-function createPC(peer){
-  const pc = new RTCPeerConnection(RTC_CONFIG);
+function renderCall(){
+  const ov = $('#callOverlay');
+  if (!call){ ov.classList.add('hidden'); return; }
+
+  ov.classList.remove('hidden');
+  ov.classList.toggle('ringing', call.state === 'calling' || call.state === 'incoming');
+
+  $('#callAvatar').innerHTML = avatarHTML(call.peer, 110);
+  $('#callName').textContent = call.peer;
+
+  const statuses = {
+    calling: 'Вызов…',
+    incoming: 'Входящий вызов',
+    connecting: 'Соединение…',
+    active: 'Разговор'
+  };
+  $('#callStatus').textContent = statuses[call.state] || '';
+
+  $('#callTimer').textContent =
+    (call.state === 'active' && call.startedAt) ? fmtDuration(Date.now() - call.startedAt) : '';
+
+  const isIncoming = call.state === 'incoming';
+  $('#callAccept').classList.toggle('hidden', !isIncoming);
+  $('#callDecline').classList.toggle('hidden', !isIncoming);
+  $('#callHangup').classList.toggle('hidden', isIncoming);
+  $('#callMute').classList.toggle('hidden', isIncoming);
+  $('#callMute').classList.toggle('off', !!call.muted);
+}
+
+async function createPC(){
+  const pc = new RTCPeerConnection({
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' }
+    ]
+  });
 
   pc.onicecandidate = e => {
-    if (e.candidate){
-      bc.postMessage({ type: 'call-ice', from: me, to: peer, candidate: e.candidate.toJSON() });
+    if (e.candidate && call){
+      sendSig({ type:'ice', from: me, to: call.peer, candidate: e.candidate });
     }
   };
 
   pc.ontrack = e => {
-    const rv = $('#remote-video');
+    const audio = $('#remoteAudio');
     if (e.streams && e.streams[0]){
-      if (rv.srcObject !== e.streams[0]) rv.srcObject = e.streams[0];
-    }
-    if (e.track.kind === 'video'){
-      $('#call').classList.add('video-on');
+      audio.srcObject = e.streams[0];
+      const p = audio.play();
+      if (p && p.catch) p.catch(() => {});
     }
   };
 
   pc.onconnectionstatechange = () => {
-    if (!call) return;
-    const st = pc.connectionState;
-    if (st === 'connected') onCallConnected();
-    else if (st === 'failed'){ toast('Соединение потеряно'); cleanupCall(true); }
+    if (!call || call.pc !== pc) return;
+    if (pc.connectionState === 'connected'){
+      if (call.state !== 'active'){
+        call.state = 'active';
+        call.startedAt = Date.now();
+        if (callTimer) clearInterval(callTimer);
+        callTimer = setInterval(() => {
+          if (call && call.startedAt) $('#callTimer').textContent = fmtDuration(Date.now() - call.startedAt);
+        }, 500);
+        renderCall();
+      }
+    } else if (pc.connectionState === 'failed'){
+      endCall('Соединение потеряно');
+    }
   };
 
   return pc;
 }
 
-async function startCall(video){
-  if (!currentChat) return;
-  if (call) return toast('Вы уже в звонке');
-
-  const peer = currentChat;
-  if (!(friendsMap[me] || []).includes(peer)) return toast('Звонить можно только друзьям');
-  if (!online.has(peer)) return toast('@' + peer + ' не в сети');
-
-  call = { peer, video, incoming: false, pc: null, localStream: null, pending: [], connected: false, offer: null };
-
-  showCallUI('outgoing');
-  setCallStatus('Вызов...');
-
-  call.localStream = await getLocalStream(video);
-  if (call.localStream && video){
-    const lv = $('#local-video');
-    lv.srcObject = call.localStream;
-    lv.classList.remove('hidden');
+async function getLocalStream(){
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return null;
+    return await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+  } catch(e){
+    return null; // микрофон недоступен — звонок всё равно возможен
   }
-
-  const pc = createPC(peer);
-  call.pc = pc;
-  attachLocalTracks(pc);
-
-  const offer = await pc.createOffer();
-  await pc.setLocalDescription(offer);
-
-  bc.postMessage({
-    type: 'call-offer',
-    from: me, to: peer,
-    sdp: { type: pc.localDescription.type, sdp: pc.localDescription.sdp },
-    video
-  });
 }
 
-async function acceptCall(){
-  if (!call || !call.incoming) return;
-  stopRing();
-
+async function startCallerPC(){
+  if (!call) return;
   const peer = call.peer;
-  call.localStream = await getLocalStream(call.video);
-  if (call.localStream && call.video){
-    const lv = $('#local-video');
-    lv.srcObject = call.localStream;
-    lv.classList.remove('hidden');
+  try {
+    const pc = await createPC();
+    if (!call || call.peer !== peer){ try { pc.close(); } catch(e){} return; }
+    call.pc = pc;
+
+    const stream = await getLocalStream();
+    if (!call || call.peer !== peer){ try { pc.close(); } catch(e){} return; }
+    if (stream){
+      call.localStream = stream;
+      stream.getTracks().forEach(t => pc.addTrack(t, stream));
+    }
+
+    // data channel гарантирует m-line и запуск ICE, даже если нет микрофона
+    try { pc.createDataChannel('mast'); } catch(e){}
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    sendSig({ type:'offer', from: me, to: peer, sdp: pc.localDescription });
+  } catch(e){
+    console.error(e);
+    endCall('Ошибка соединения');
   }
-
-  const pc = createPC(peer);
-  call.pc = pc;
-  attachLocalTracks(pc);
-
-  await pc.setRemoteDescription(call.offer);
-
-  for (const c of call.pending){ try { await pc.addIceCandidate(c); } catch(e){} }
-  call.pending = [];
-
-  const answer = await pc.createAnswer();
-  await pc.setLocalDescription(answer);
-
-  bc.postMessage({
-    type: 'call-answer',
-    from: me, to: peer,
-    sdp: { type: pc.localDescription.type, sdp: pc.localDescription.sdp }
-  });
-
-  call.incoming = false;
-  showCallUI('active');
-  setCallStatus('Соединение...');
 }
 
-function declineCall(){
+async function onOffer(sdp){
   if (!call) return;
-  bc.postMessage({ type: 'call-decline', from: me, to: call.peer });
-  cleanupCall(false);
-  toast('Вызов отклонён');
-}
+  const peer = call.peer;
+  try {
+    const pc = await createPC();
+    if (!call || call.peer !== peer){ try { pc.close(); } catch(e){} return; }
+    call.pc = pc;
 
-function endCall(){
-  if (!call) return;
-  cleanupCall(true);
-}
+    const stream = await getLocalStream();
+    if (!call || call.peer !== peer){ try { pc.close(); } catch(e){} return; }
+    if (stream){
+      call.localStream = stream;
+      stream.getTracks().forEach(t => pc.addTrack(t, stream));
+    }
 
-function cleanupCall(notify){
-  stopRing();
-  clearInterval(callTimerInt);
-  callTimerInt = null;
-  callSeconds = 0;
-
-  if (!call){
-    $('#call').classList.add('hidden');
-    return;
+    await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+    await flushIce();
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    sendSig({ type:'answer', from: me, to: peer, sdp: pc.localDescription });
+  } catch(e){
+    console.error(e);
+    endCall('Ошибка соединения');
   }
-
-  if (notify) bc.postMessage({ type: 'call-end', from: me, to: call.peer });
-
-  try { if (call.pc) call.pc.close(); } catch(e){}
-  if (call.localStream) call.localStream.getTracks().forEach(t => t.stop());
-
-  const lv = $('#local-video'), rv = $('#remote-video');
-  lv.srcObject = null; rv.srcObject = null;
-  lv.classList.add('hidden');
-
-  call = null;
-  $('#call').classList.add('hidden');
-  $('#call').classList.remove('video-on');
-  $('#call-controls').innerHTML = '';
 }
 
-function onCallConnected(){
-  if (!call || call.connected) return;
-  call.connected = true;
-  callSeconds = 0;
-  setCallStatus('00:00');
-  clearInterval(callTimerInt);
-  callTimerInt = setInterval(() => {
-    callSeconds++;
-    setCallStatus(fmtDuration(callSeconds));
-  }, 1000);
+async function onAnswer(sdp){
+  if (!call || !call.pc) return;
+  try {
+    await call.pc.setRemoteDescription(new RTCSessionDescription(sdp));
+    await flushIce();
+  } catch(e){ console.error(e); }
 }
 
-function handleCallSignal(m){
-  if (m.to !== me) return;
+async function onIce(cand){
+  if (!call) return;
+  if (call.pc && call.pc.remoteDescription && call.pc.remoteDescription.type){
+    try { await call.pc.addIceCandidate(new RTCIceCandidate(cand)); } catch(e){}
+  } else {
+    call.pendingIce.push(cand);
+  }
+}
 
-  switch (m.type){
-    case 'call-offer': {
+async function flushIce(){
+  if (!call || !call.pc) return;
+  const queue = call.pendingIce.slice();
+  call.pendingIce = [];
+  for (let i = 0; i < queue.length; i++){
+    try { await call.pc.addIceCandidate(new RTCIceCandidate(queue[i])); } catch(e){}
+  }
+}
+
+function handleSignal(m){
+  switch(m.type){
+    case 'invite':
       if (call){
-        bc.postMessage({ type: 'call-busy', from: me, to: m.from });
+        sendSig({ type:'busy', from: me, to: m.from });
         return;
       }
+      if (!db.users[m.from]) { sendSig({ type:'decline', from: me, to: m.from }); return; }
       call = {
-        peer: m.from, video: !!m.video, incoming: true,
-        pc: null, localStream: null, pending: [], connected: false,
-        offer: m.sdp
+        peer: m.from, role: 'callee', state: 'incoming',
+        pc: null, localStream: null, pendingIce: [], startedAt: null,
+        muted: false, timeout: null
       };
-      showCallUI('incoming');
-      setCallStatus('Входящий ' + (m.video ? 'видеозвонок' : 'звонок'));
-      startRing();
+      renderCall();
       break;
-    }
-    case 'call-answer': {
-      if (!call || call.peer !== m.from || !call.pc) return;
-      stopRing();
-      call.pc.setRemoteDescription(m.sdp)
-        .then(async () => {
-          for (const c of call.pending){ try { await call.pc.addIceCandidate(c); } catch(e){} }
-          call.pending = [];
-        })
-        .catch(err => console.warn(err));
-      setCallStatus('Соединение...');
+
+    case 'busy':
+      if (call && call.peer === m.from) endCall('Абонент занят');
       break;
-    }
-    case 'call-ice': {
-      if (!call || call.peer !== m.from) return;
-      if (call.pc && call.pc.remoteDescription){
-        call.pc.addIceCandidate(m.candidate).catch(() => {});
-      } else {
-        call.pending.push(m.candidate);
+
+    case 'accept':
+      if (call && call.role === 'caller' && call.peer === m.from){
+        if (call.timeout) clearTimeout(call.timeout);
+        call.state = 'connecting';
+        renderCall();
+        startCallerPC();
       }
       break;
-    }
-    case 'call-decline': {
-      if (!call || call.peer !== m.from) return;
-      cleanupCall(false);
-      toast('Вызов отклонён');
+
+    case 'decline':
+      if (call && call.peer === m.from) endCall('Вызов отклонён');
       break;
-    }
-    case 'call-busy': {
-      if (!call || call.peer !== m.from) return;
-      cleanupCall(false);
-      toast('Пользователь сейчас занят');
+
+    case 'end':
+      if (call && call.peer === m.from) endCall('Вызов завершён');
       break;
-    }
-    case 'call-end': {
-      if (!call || call.peer !== m.from) return;
-      cleanupCall(false);
-      toast('Звонок завершён');
+
+    case 'offer':
+      if (call && call.peer === m.from) onOffer(m.sdp);
       break;
-    }
+
+    case 'answer':
+      if (call && call.peer === m.from) onAnswer(m.sdp);
+      break;
+
+    case 'ice':
+      if (call && call.peer === m.from) onIce(m.candidate);
+      break;
   }
 }
 
-/* ---------- UI звонка ---------- */
-function showCallUI(mode){
-  const peer = call.peer;
-  const overlay = $('#call');
+$('#btnCall').addEventListener('click', () => {
+  if (!currentChat) return;
+  startCall(currentChat);
+});
+$('#callAccept').addEventListener('click', acceptCall);
+$('#callDecline').addEventListener('click', declineCall);
+$('#callHangup').addEventListener('click', () => hangUp(false));
+$('#callMute').addEventListener('click', toggleMute);
 
-  overlay.classList.remove('hidden');
-  overlay.classList.toggle('video-on', false);
+/* ============================================================
+   КАНАЛ СВЯЗИ МЕЖДУ ВКЛАДКАМИ
+   ============================================================ */
+if (bc){
+  bc.onmessage = e => {
+    const m = e.data;
+    if (!m || !m.kind) return;
 
-  $('#call-avatar').innerHTML = avatarHTML(peer, 110);
-  $('#call-name').textContent = users[peer]?.name || peer;
-
-  const controls = $('#call-controls');
-
-  if (mode === 'incoming'){
-    controls.innerHTML = `
-      <button class="cbtn decline" id="c-decline" title="Отклонить">✕</button>
-      <button class="cbtn accept" id="c-accept" title="Принять">✓</button>`;
-    $('#c-decline').onclick = declineCall;
-    $('#c-accept').onclick = acceptCall;
-  } else {
-    controls.innerHTML = `
-      <button class="cbtn" id="c-mute" title="Микрофон">🎙</button>
-      ${call.video ? '<button class="cbtn" id="c-cam" title="Камера">🎥</button>' : ''}
-      <button class="cbtn decline" id="c-end" title="Завершить">📵</button>`;
-    $('#c-end').onclick = endCall;
-
-    const muteBtn = $('#c-mute');
-    muteBtn.onclick = () => {
-      if (!call || !call.localStream) return toast('Микрофон недоступен');
-      const track = call.localStream.getAudioTracks()[0];
-      if (!track) return;
-      track.enabled = !track.enabled;
-      muteBtn.classList.toggle('off', !track.enabled);
-      muteBtn.textContent = track.enabled ? '🎙' : '🔇';
-    };
-
-    const camBtn = $('#c-cam');
-    if (camBtn){
-      camBtn.onclick = () => {
-        if (!call || !call.localStream) return;
-        const track = call.localStream.getVideoTracks()[0];
-        if (!track) return;
-        track.enabled = !track.enabled;
-        camBtn.classList.toggle('off', !track.enabled);
-        camBtn.textContent = track.enabled ? '🎥' : '🚫';
-      };
+    if (m.kind === 'db'){
+      if (!me) return;
+      loadDB();
+      if (!db.users[me]){ doLogout(); return; }
+      renderAll();
     }
+    else if (m.kind === 'ping'){
+      if (m.user && m.user !== me){
+        online[m.user] = Date.now();
+      }
+    }
+    else if (m.kind === 'bye'){
+      if (m.user){
+        delete online[m.user];
+        renderSidebar();
+        renderChat();
+      }
+    }
+    else if (m.kind === 'sig'){
+      const d = m.data;
+      if (d && d.to === me && me) handleSignal(d);
+    }
+  };
+}
+
+/* ============================================================
+   ЗАКРЫТИЕ ВКЛАДКИ
+   ============================================================ */
+window.addEventListener('beforeunload', () => {
+  if (!me) return;
+  if (bc){
+    if (call){
+      bc.postMessage({ kind:'sig', data:{ type:'end', from: me, to: call.peer } });
+    }
+    bc.postMessage({ kind:'bye', user: me });
   }
-}
+});
 
-function setCallStatus(text){ $('#call-status').textContent = text; }
+/* ============================================================
+   СИНХРОНИЗАЦИЯ МЕЖДУ ВКЛАДКАМИ (на случай отсутствия BroadcastChannel)
+   ============================================================ */
+window.addEventListener('storage', e => {
+  if (e.key === DB_KEY && me){
+    loadDB();
+    if (!db.users[me]){ doLogout(); return; }
+    renderAll();
+  }
+});
 
-$('#btn-audio').onclick = () => startCall(false);
-$('#btn-video').onclick = () => startCall(true);
-
-/* ---------- Рингтон ---------- */
-let ringCtx = null, ringInt = null;
-function startRing(){
-  try {
-    ringCtx = ringCtx || new (window.AudioContext || window.webkitAudioContext)();
-    if (ringCtx.state === 'suspended') ringCtx.resume();
-    const beep = () => {
-      if (!ringCtx) return;
-      const o = ringCtx.createOscillator(), g = ringCtx.createGain();
-      o.type = 'sine';
-      o.frequency.value = 640;
-      const t = ringCtx.currentTime;
-      g.gain.setValueAtTime(0, t);
-      g.gain.linearRampToValueAtTime(0.07, t + 0.04);
-      g.gain.linearRampToValueAtTime(0, t + 0.45);
-      o.connect(g); g.connect(ringCtx.destination);
-      o.start(t); o.stop(t + 0.5);
-    };
-    beep();
-    clearInterval(ringInt);
-    ringInt = setInterval(beep, 1700);
-  } catch(e){}
-}
-function stopRing(){ clearInterval(ringInt); ringInt = null; }
-
-/* =========================================================
+/* ============================================================
    ИНИЦИАЛИЗАЦИЯ
-   ========================================================= */
-(function init(){
-  reloadState();
-  const session = LS.get('session', null);
-  if (session && users[session]){
-    loginAs(session);
-  }
-  // Закрывать чат на мобильных при первом открытии
-  if (window.innerWidth <= 760) $('#app').classList.add('chat-closed');
+   ============================================================ */
+function init(){
+  loadDB();
 
-  // Периодическая перерисовка статусов «в сети»
-  setInterval(() => { if (me) renderList(); }, 5000);
+  let saved = null;
+  try { saved = sessionStorage.getItem(SES_KEY); } catch(e){}
+
+  if (saved && db.users[saved]){
+    doLogin(saved);
+  } else {
+    $('#authScreen').classList.remove('hidden');
+    $('#app').classList.add('hidden');
+    setTimeout(() => { $('#authUser').focus(); }, 100);
+  }
+}
+
+init();
+
 })();
 </script>
 </body>
