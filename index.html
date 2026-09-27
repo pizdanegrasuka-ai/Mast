@@ -15,6 +15,9 @@
     --accent2:#22d3ee;
     --text:#e9e9f2;
     --muted:#8a8aa3;
+    --danger:#ff5c7a;
+    --danger-soft:rgba(255,92,122,.12);
+    --danger-border:rgba(255,92,122,.32);
   }
 
   html,body{height:100%}
@@ -299,6 +302,11 @@
     border-radius:999px;
     background:rgba(255,255,255,.045);
     border:1px solid var(--border);
+    transition:.25s;
+  }
+  .user-chip.muted{
+    border-color:var(--danger-border);
+    background:var(--danger-soft);
   }
   .user-chip .name{
     font-size:13.5px;
@@ -380,6 +388,26 @@
     text-transform:uppercase;
   }
 
+  .sysmsg{
+    align-self:center;
+    margin:9px auto;
+    padding:8px 18px;
+    border-radius:14px;
+    font-size:13px;
+    font-weight:600;
+    text-align:center;
+    color:#ffb3c1;
+    background:linear-gradient(180deg, rgba(255,92,122,.13), rgba(255,92,122,.07));
+    border:1px solid var(--danger-border);
+    box-shadow:0 4px 18px rgba(255,92,122,.10);
+    max-width:92%;
+    animation:sysIn .45s cubic-bezier(.2,.9,.3,1.15);
+  }
+  @keyframes sysIn{
+    from{opacity:0;transform:translateY(8px) scale(.94)}
+    to{opacity:1;transform:none}
+  }
+
   .msg{
     display:flex;
     align-items:flex-end;
@@ -458,6 +486,72 @@
     filter:grayscale(.3);
   }
 
+  /* ================= БАННЕР МУТА ================= */
+  .mute-banner{
+    flex:0 0 auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:5px;
+    padding:13px 20px;
+    background:linear-gradient(180deg, rgba(255,92,122,.20), rgba(255,92,122,.08));
+    border-top:1px solid var(--danger-border);
+    color:#ffd0da;
+    font-size:13.5px;
+    letter-spacing:.2px;
+    text-align:center;
+    animation:bannerIn .35s cubic-bezier(.2,.9,.3,1.15);
+  }
+  .mute-banner .row-main{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-weight:800;
+    color:#fff;
+    font-size:14px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .mute-banner .row-main svg{width:17px;height:17px;flex:0 0 17px;color:#ff8ba3}
+  .mute-banner .until{
+    color:#fff;
+    font-variant-numeric:tabular-nums;
+    background:rgba(255,92,122,.34);
+    padding:2px 9px;
+    border-radius:7px;
+    font-size:13px;
+    font-weight:800;
+    letter-spacing:.4px;
+    box-shadow:0 0 0 1px rgba(255,92,122,.4);
+  }
+  .mute-banner .row-sub{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12.5px;
+    color:#ffb3c1;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .mute-banner .reason{
+    color:#ff8ba3;
+    font-weight:600;
+  }
+  .mute-banner .timer{
+    font-variant-numeric:tabular-nums;
+    color:#fff;
+    background:rgba(255,92,122,.22);
+    padding:2px 8px;
+    border-radius:7px;
+    font-size:12px;
+    font-weight:700;
+  }
+  @keyframes bannerIn{
+    from{opacity:0;transform:translateY(8px)}
+    to{opacity:1;transform:none}
+  }
+
   /* ================= ПОЛЕ ВВОДА ================= */
   .composer{
     flex:0 0 auto;
@@ -469,7 +563,9 @@
     border-top:1px solid var(--border);
     backdrop-filter:blur(20px);
     -webkit-backdrop-filter:blur(20px);
+    transition:opacity .25s;
   }
+  .composer.disabled{opacity:.55}
 
   .composer textarea{
     flex:1 1 auto;
@@ -492,6 +588,11 @@
     background:rgba(124,92,255,.06);
     box-shadow:0 0 0 4px rgba(124,92,255,.13);
   }
+  .composer textarea:disabled{
+    cursor:not-allowed;
+    background:rgba(255,92,122,.06);
+    border-color:var(--danger-border);
+  }
 
   .send-btn{
     width:48px;height:48px;
@@ -503,10 +604,16 @@
     color:#fff;
     background:linear-gradient(135deg, var(--accent), var(--accent2));
     box-shadow:0 10px 26px rgba(124,92,255,.42);
-    transition:transform .16s, box-shadow .22s;
+    transition:transform .16s, box-shadow .22s, opacity .2s;
   }
-  .send-btn:hover{transform:translateY(-2px);box-shadow:0 15px 34px rgba(124,92,255,.58)}
-  .send-btn:active{transform:scale(.93)}
+  .send-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 15px 34px rgba(124,92,255,.58)}
+  .send-btn:active:not(:disabled){transform:scale(.93)}
+  .send-btn:disabled{
+    cursor:not-allowed;
+    opacity:.55;
+    background:linear-gradient(135deg, #6b3a48, #7a4a55);
+    box-shadow:none;
+  }
   .send-btn svg{width:21px;height:21px}
 
   /* ================= МОБИЛЬНАЯ ================= */
@@ -523,6 +630,8 @@
     .avatar{width:34px;height:34px;flex-basis:34px;font-size:13.5px}
     .login-card{padding:36px 24px 28px}
     .logo{font-size:36px}
+    .mute-banner{font-size:12.5px;padding:11px 14px}
+    .mute-banner .row-main{font-size:13px}
   }
 </style>
 </head>
@@ -550,7 +659,7 @@
 
     <button id="joinBtn" class="btn-primary">Войти в чат</button>
     <div id="loginError" class="error"></div>
-    <div class="hint">3–16 символов · буквы, цифры, «_»<br>Любой человек в мире увидит твои сообщения</div>
+    <div class="hint">3–16 символов · буквы, цифры, «_»<br>Спам = мут на 5 минут</div>
   </div>
 </div>
 
@@ -572,7 +681,7 @@
 
     <div class="spacer"></div>
 
-    <div class="user-chip">
+    <div class="user-chip" id="userChip">
       <div class="avatar" id="userAvatar">?</div>
       <span class="name" id="userName">—</span>
     </div>
@@ -594,7 +703,25 @@
     </div>
   </main>
 
-  <div class="composer">
+  <!-- Баннер мута (показывается только замученному) -->
+  <div class="mute-banner hidden" id="muteBanner">
+    <div class="row-main">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 5 6 9H2v6h4l5 4V5z"/>
+        <line x1="22" y1="9" x2="16" y2="15"/>
+        <line x1="16" y1="9" x2="22" y2="15"/>
+      </svg>
+      <span>Ты больше не можешь писать сообщения до</span>
+      <span class="until" id="muteUntil">—</span>
+    </div>
+    <div class="row-sub">
+      <span>Причина: <span class="reason" id="muteReason">спам</span></span>
+      <span class="timer" id="muteTimer">5:00</span>
+    </div>
+  </div>
+
+  <div class="composer" id="composer">
     <textarea id="msgInput" rows="1" placeholder="Написать в мир..." maxlength="2000"></textarea>
     <button class="send-btn" id="sendBtn" title="Отправить">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -612,18 +739,26 @@
   'use strict';
 
   /* ==================== КОНФИГ ==================== */
-  // Публичный брокер ntfy.sh — без регистрации, без API-ключей, глобальный.
-  // Все, кто откроет эту страницу, подключаются к одному топику = общий чат.
   const NTFY            = 'https://ntfy.sh';
-  const TOPIC_CHAT      = 'stepclub_global_chat_v1_a7x9k2m4q8';   // общий чат
-  const TOPIC_PRESENCE  = 'stepclub_global_presence_v1_a7x9k2m4q8'; // онлайн-статусы
+  const TOPIC_CHAT      = 'stepclub_global_chat_v1_a7x9k2m4q8';
+  const TOPIC_PRESENCE  = 'stepclub_global_presence_v1_a7x9k2m4q8';
+  const TOPIC_MUTES     = 'stepclub_global_mutes_v1_a7x9k2m4q8';
 
-  const PING_INTERVAL   = 10000;   // каждые 10 сек шлём «я онлайн»
-  const ONLINE_TIMEOUT  = 32000;   // если 32 сек нет пинга — оффлайн
-  const PRESENCE_CHECK  = 60000;   // окно проверки занятости ника при входе
+  const PING_INTERVAL   = 25000;
+  const POLL_INTERVAL   = 20000;
+  const ONLINE_TIMEOUT  = 60000;
+
   const CACHE_KEY       = 'stepclub_cache_v2';
   const ME_KEY          = 'stepclub_me_v2';
+  const MUTES_KEY       = 'stepclub_mutes_v2';
   const MAX_CACHE       = 3000;
+
+  const MUTE_DURATION   = 5 * 60 * 1000;
+  const SPAM_WINDOW     = 10000;
+  const SPAM_THRESHOLD  = 5;
+  const REPEAT_LIMIT    = 4;
+  const CAPS_MIN_LEN    = 10;
+  const CAPS_RATIO      = 0.75;
 
   /* ==================== DOM ==================== */
   const loginScreen = document.getElementById('loginScreen');
@@ -640,18 +775,30 @@
   const onlineCount = document.getElementById('onlineCount');
   const userAvatar  = document.getElementById('userAvatar');
   const userName    = document.getElementById('userName');
+  const userChip    = document.getElementById('userChip');
   const statusPill  = document.getElementById('statusPill');
   const statusText  = document.getElementById('statusText');
+  const muteBanner  = document.getElementById('muteBanner');
+  const muteTimer   = document.getElementById('muteTimer');
+  const muteReason  = document.getElementById('muteReason');
+  const muteUntil   = document.getElementById('muteUntil');
+  const composer    = document.getElementById('composer');
 
   /* ==================== СОСТОЯНИЕ ==================== */
   let currentUser   = null;
-  let onlineUsers   = {};          // name_lower -> { name, ts }
+  let onlineUsers   = {};
+  let activeMutes   = {};
+  let spamTracker   = {};
   let renderedIds   = new Set();
   let lastDayKey    = null;
-  let chatES        = null;        // EventSource для чата
-  let presenceES    = null;        // EventSource для онлайна
+
+  let chatStream    = null;
+  let mutesStream   = null;
+
   let pingTimer     = null;
+  let presenceTimer = null;
   let cleanupTimer  = null;
+  let tickTimer     = null;
 
   /* ==================== УТИЛИТЫ ==================== */
   function hashCode(str) {
@@ -677,6 +824,18 @@
 
   function formatTime(ts) {
     return new Date(ts).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatUntilTime(ts) {
+    const d = new Date(ts);
+    const now = new Date();
+    const sameDay = d.toDateString() === now.toDateString();
+    const tomorrow = new Date(now); tomorrow.setDate(now.getDate() + 1);
+    const isTomorrow = d.toDateString() === tomorrow.toDateString();
+    const time = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+    if (sameDay) return time;
+    if (isTomorrow) return 'завтра в ' + time;
+    return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }) + ' в ' + time;
   }
 
   function uid() {
@@ -713,20 +872,80 @@
     } catch (e) {}
   }
 
+  /* ==================== МУТЫ: ХРАНИЛИЩЕ ==================== */
+  function loadMutes() {
+    try {
+      const obj = JSON.parse(localStorage.getItem(MUTES_KEY) || '{}');
+      const now = Date.now();
+      activeMutes = {};
+      for (const k in obj) {
+        if (obj[k] && obj[k].until > now) activeMutes[k] = obj[k];
+      }
+    } catch (e) { activeMutes = {}; }
+  }
+
+  function saveMutes() {
+    try { localStorage.setItem(MUTES_KEY, JSON.stringify(activeMutes)); } catch (e) {}
+  }
+
+  function isMuted(nameKey) {
+    const key = String(nameKey).toLowerCase();
+    const m = activeMutes[key];
+    if (!m) return false;
+    if (m.until <= Date.now()) {
+      delete activeMutes[key];
+      saveMutes();
+      return false;
+    }
+    return true;
+  }
+
+  /* ==================== ДЕТЕКТ СПАМА ==================== */
+  function detectSpam(name, text) {
+    const key = name.toLowerCase();
+    const now = Date.now();
+    if (!spamTracker[key]) spamTracker[key] = { times: [], lastText: '', repeatCount: 0 };
+    const s = spamTracker[key];
+
+    s.times.push(now);
+    s.times = s.times.filter(function (t) { return now - t < SPAM_WINDOW; });
+    if (s.times.length >= SPAM_THRESHOLD) {
+      s.times = []; s.repeatCount = 0;
+      return 'флуд — слишком много сообщений подряд';
+    }
+
+    const clean = String(text).trim().toLowerCase();
+    if (clean.length > 0 && clean === s.lastText) s.repeatCount++;
+    else { s.lastText = clean; s.repeatCount = 1; }
+    if (s.repeatCount >= REPEAT_LIMIT) {
+      s.repeatCount = 0; s.times = [];
+      return 'повторяющиеся сообщения';
+    }
+
+    const letters = String(text).replace(/[^A-Za-zА-Яа-яЁё]/g, '');
+    if (letters.length >= CAPS_MIN_LEN) {
+      const upper = (String(text).match(/[A-ZА-ЯЁ]/g) || []).length;
+      if (upper / letters.length > CAPS_RATIO) {
+        s.times = []; s.repeatCount = 0;
+        return 'сообщения капсом';
+      }
+    }
+    return null;
+  }
+
   /* ==================== ПУБЛИКАЦИЯ ==================== */
   function publish(topic, payload) {
-    // ntfy принимает тело запроса как текст сообщения.
     return fetch(NTFY + '/' + topic, {
       method: 'POST',
       body: JSON.stringify(payload)
-    }).catch(function () { /* игнорируем сетевые сбои */ });
+    }).catch(function () {});
   }
 
-  function publishChat(msg)  { return publish(TOPIC_CHAT, msg); }
-  function publishPresence(p){ return publish(TOPIC_PRESENCE, p); }
+  function publishChat(msg)     { return publish(TOPIC_CHAT, msg); }
+  function publishPresence(p)   { return publish(TOPIC_PRESENCE, p); }
+  function publishMuteRaw(m)    { return publish(TOPIC_MUTES, m); }
 
   /* ==================== ЗАГРУЗКА ИСТОРИИ ==================== */
-  // ntfy отдаёт NDJSON (по одному событию на строку).
   async function fetchHistory(topic, since) {
     try {
       const url = NTFY + '/' + topic + '/json?poll=1&since=' + since;
@@ -749,6 +968,13 @@
 
   /* ==================== ОТРИСОВКА ==================== */
   function createMessageEl(msg) {
+    if (msg.sys) {
+      const el = document.createElement('div');
+      el.className = 'sysmsg';
+      el.textContent = msg.text;
+      return el;
+    }
+
     const isOwn = currentUser && msg.name.toLowerCase() === currentUser.toLowerCase();
 
     const wrap = document.createElement('div');
@@ -788,7 +1014,6 @@
     bubble.appendChild(text);
     wrap.appendChild(av);
     wrap.appendChild(bubble);
-
     return wrap;
   }
 
@@ -818,7 +1043,7 @@
     if (doScroll !== false) scrollToBottom(true);
   }
 
-  /* ==================== ОНЛАЙН ==================== */
+  /* ==================== ПРИСУТСТВИЕ ==================== */
   function updateOnlineCount() {
     const now = Date.now();
     let count = 0;
@@ -828,27 +1053,24 @@
     onlineCount.textContent = count;
   }
 
-  function cleanupOnline() {
-    const now = Date.now();
-    let changed = false;
-    for (const k in onlineUsers) {
-      if (now - onlineUsers[k].ts >= ONLINE_TIMEOUT) {
-        delete onlineUsers[k];
-        changed = true;
+  async function pollPresence() {
+    try {
+      const list = await fetchHistory(TOPIC_PRESENCE, '2m');
+      const now = Date.now();
+      const fresh = {};
+      if (currentUser) {
+        fresh[currentUser.toLowerCase()] = { name: currentUser, ts: now };
       }
-    }
-    if (changed) updateOnlineCount();
-  }
-
-  function registerPresence(p) {
-    if (!p || !p.name) return;
-    const key = String(p.name).toLowerCase();
-    if (p.type === 'leave') {
-      delete onlineUsers[key];
-    } else {
-      onlineUsers[key] = { name: p.name, ts: p.ts || Date.now() };
-    }
-    updateOnlineCount();
+      for (let i = 0; i < list.length; i++) {
+        const p = list[i];
+        if (!p || !p.name || p.type === 'leave') continue;
+        if ((now - (p.ts || 0)) < ONLINE_TIMEOUT) {
+          fresh[p.name.toLowerCase()] = { name: p.name, ts: p.ts || now };
+        }
+      }
+      onlineUsers = fresh;
+      updateOnlineCount();
+    } catch (e) {}
   }
 
   function startPing() {
@@ -865,55 +1087,209 @@
     if (pingTimer) { clearInterval(pingTimer); pingTimer = null; }
   }
 
-  /* ==================== ПОТОКИ ==================== */
-  function connectChatStream() {
-    if (chatES) { try { chatES.close(); } catch (e) {} }
-    setStatus('connecting', 'Подключение…');
-
-    try {
-      chatES = new EventSource(NTFY + '/' + TOPIC_CHAT + '/sse');
-    } catch (e) {
-      setStatus('error', 'Ошибка');
-      return;
-    }
-
-    chatES.onopen = function () { setStatus('connected', 'Онлайн'); };
-
-    chatES.onmessage = function (e) {
-      try {
-        const env = JSON.parse(e.data);
-        if (!env || env.event !== 'message' || !env.message) return;
-        const payload = JSON.parse(env.message);
-        if (payload && payload.id && payload.name && typeof payload.text === 'string') {
-          saveToCache(payload);
-          appendMessage(payload, true);
-        }
-      } catch (err) {}
-    };
-
-    chatES.onerror = function () {
-      setStatus('connecting', 'Переподключение…');
-      // EventSource сам переподключится
-    };
+  function startPresencePolling() {
+    stopPresencePolling();
+    pollPresence();
+    presenceTimer = setInterval(pollPresence, POLL_INTERVAL);
   }
 
-  function connectPresenceStream() {
-    if (presenceES) { try { presenceES.close(); } catch (e) {} }
+  function stopPresencePolling() {
+    if (presenceTimer) { clearInterval(presenceTimer); presenceTimer = null; }
+  }
 
-    try {
-      presenceES = new EventSource(NTFY + '/' + TOPIC_PRESENCE + '/sse');
-    } catch (e) { return; }
+  /* ==================== МУТЫ: ЛОГИКА ==================== */
+  function applyMuteAndShow(mute) {
+    if (!mute || mute.type !== 'mute' || !mute.name) return;
+    const key = String(mute.name).toLowerCase();
+    const existing = activeMutes[key];
 
-    presenceES.onmessage = function (e) {
-      try {
-        const env = JSON.parse(e.data);
-        if (!env || env.event !== 'message' || !env.message) return;
-        const payload = JSON.parse(env.message);
-        registerPresence(payload);
-      } catch (err) {}
+    if (existing && existing.until >= mute.until - 2000) return;
+
+    const isFresh = !existing || existing.until <= Date.now();
+    activeMutes[key] = mute;
+    saveMutes();
+
+    if (isFresh) {
+      const bucket = Math.floor((mute.ts || Date.now()) / 5000);
+      const ts = mute.ts || Date.now();
+
+      // Публичная системка — видят все
+      const sysMsg = {
+        id: 'mute_' + key + '_' + bucket,
+        sys: true,
+        text: '🔇 ' + mute.name + ' получил мут на 5 минут. Причина: ' + mute.reason,
+        ts: ts
+      };
+      saveToCache(sysMsg);
+      appendMessage(sysMsg, true);
+
+      // Персональная системка — видит только сам замученный
+      if (currentUser && key === currentUser.toLowerCase()) {
+        const personalMsg = {
+          id: 'mute_self_' + key + '_' + bucket,
+          sys: true,
+          text: '🔇 Тебе выдан мут на 5 минут — до ' + formatUntilTime(mute.until) +
+                '. Причина: ' + mute.reason +
+                '. Пока что ты не можешь отправлять сообщения в чат.',
+          ts: ts + 1
+        };
+        saveToCache(personalMsg);
+        appendMessage(personalMsg, true);
+      }
+    }
+
+    if (currentUser && key === currentUser.toLowerCase()) updateMuteUI();
+  }
+
+  function publishMute(name, reason) {
+    const now = Date.now();
+    const mute = {
+      type: 'mute',
+      name: name,
+      reason: reason,
+      until: now + MUTE_DURATION,
+      by: currentUser || 'anonymous',
+      ts: now
+    };
+    publishMuteRaw(mute);
+    applyMuteAndShow(mute);
+  }
+
+  function updateMuteUI() {
+    if (!currentUser) return;
+    const key = currentUser.toLowerCase();
+    const m = activeMutes[key];
+    const now = Date.now();
+
+    if (m && m.until > now) {
+      const left = Math.max(0, Math.ceil((m.until - now) / 1000));
+      const mm = Math.floor(left / 60);
+      const ss = left % 60;
+      const untilStr = formatUntilTime(m.until);
+      muteTimer.textContent = 'осталось ' + mm + ':' + String(ss).padStart(2, '0');
+      muteUntil.textContent = untilStr;
+      muteReason.textContent = m.reason;
+      muteBanner.classList.remove('hidden');
+      msgInput.disabled = true;
+      sendBtn.disabled = true;
+      composer.classList.add('disabled');
+      userChip.classList.add('muted');
+      msgInput.placeholder = 'Ты в муте до ' + untilStr + '…';
+    } else {
+      muteBanner.classList.add('hidden');
+      msgInput.disabled = false;
+      sendBtn.disabled = false;
+      composer.classList.remove('disabled');
+      userChip.classList.remove('muted');
+      msgInput.placeholder = 'Написать в мир...';
+    }
+  }
+
+  /* ==================== SSE С BACKOFF ==================== */
+  function openStream(topic, handlers) {
+    const state = {
+      es: null,
+      attempt: 0,
+      stopped: false,
+      timer: null
     };
 
-    presenceES.onerror = function () { /* сам переподключится */ };
+    function open() {
+      if (state.stopped) return;
+      try {
+        state.es = new EventSource(NTFY + '/' + topic + '/sse');
+      } catch (e) {
+        scheduleRetry();
+        return;
+      }
+
+      state.es.onopen = function () {
+        state.attempt = 0;
+        if (handlers.onOpen) handlers.onOpen();
+      };
+
+      state.es.onmessage = function (e) {
+        try {
+          const env = JSON.parse(e.data);
+          if (env && env.event === 'message' && env.message) {
+            handlers.onMessage(JSON.parse(env.message));
+          }
+        } catch (err) {}
+      };
+
+      state.es.onerror = function () {
+        try { state.es.close(); } catch (e) {}
+        state.es = null;
+        scheduleRetry();
+      };
+    }
+
+    function scheduleRetry() {
+      if (state.stopped) return;
+      state.attempt++;
+      const wait = Math.min(30000, Math.round(800 * Math.pow(1.6, state.attempt)));
+      if (handlers.onRetry) handlers.onRetry(state.attempt, wait);
+      state.timer = setTimeout(open, wait);
+    }
+
+    function close() {
+      state.stopped = true;
+      if (state.timer) { clearTimeout(state.timer); state.timer = null; }
+      if (state.es) { try { state.es.close(); } catch (e) {} state.es = null; }
+    }
+
+    open();
+    return { close: close };
+  }
+
+  /* ==================== ОБРАБОТЧИКИ ПОТОКОВ ==================== */
+  function handleChatMessage(payload) {
+    if (!payload || !payload.id || !payload.name || typeof payload.text !== 'string') return;
+    const key = String(payload.name).toLowerCase();
+
+    if (currentUser && key === currentUser.toLowerCase()) {
+      saveToCache(payload);
+      appendMessage(payload, true);
+      return;
+    }
+    if (isMuted(key)) return;
+
+    const reason = detectSpam(payload.name, payload.text);
+    if (reason) {
+      if (!isMuted(key)) {
+        setTimeout(function () {
+          if (!isMuted(key)) publishMute(payload.name, reason);
+        }, 300 + Math.random() * 500);
+      }
+      return;
+    }
+    saveToCache(payload);
+    appendMessage(payload, true);
+  }
+
+  function handleMuteEvent(payload) {
+    if (payload && payload.type === 'mute') applyMuteAndShow(payload);
+  }
+
+  function connectChatStream() {
+    if (chatStream) chatStream.close();
+    chatStream = openStream(TOPIC_CHAT, {
+      onOpen: function () { setStatus('connected', 'Онлайн'); },
+      onRetry: function (n, wait) {
+        const s = Math.max(1, Math.round(wait / 1000));
+        setStatus('connecting', 'Переподключение #' + n + ' (' + s + 'с)…');
+      },
+      onMessage: handleChatMessage
+    });
+  }
+
+  function connectMutesStream() {
+    if (mutesStream) mutesStream.close();
+    mutesStream = openStream(TOPIC_MUTES, {
+      onOpen: function () {},
+      onRetry: function () {},
+      onMessage: handleMuteEvent
+    });
   }
 
   /* ==================== ВХОД ==================== */
@@ -930,8 +1306,7 @@
   }
 
   async function isNameTaken(name) {
-    // Тянем присутствие за последнюю минуту с сервера + локальный кэш онлайна
-    const fromServer = await fetchHistory(TOPIC_PRESENCE, '1m');
+    const fromServer = await fetchHistory(TOPIC_PRESENCE, '2m');
     const now = Date.now();
     const low = name.toLowerCase();
 
@@ -950,7 +1325,6 @@
 
   async function tryJoin() {
     const name = nameInput.value.trim();
-
     if (!name) { showError('Введи ник'); return; }
     if (!isValidName(name)) {
       showError('3–16 символов: буквы, цифры и «_»');
@@ -968,10 +1342,7 @@
     joinBtn.disabled = false;
     joinBtn.textContent = 'Войти в чат';
 
-    if (taken) {
-      showError('Этот ник сейчас в сети — выбери другой');
-      return;
-    }
+    if (taken) { showError('Этот ник сейчас в сети — выбери другой'); return; }
 
     currentUser = name;
     try { sessionStorage.setItem(ME_KEY, name); } catch (e) {}
@@ -987,11 +1358,12 @@
     userAvatar.style.setProperty('--hue', hue);
     userName.textContent = currentUser;
 
-    // Сначала — старый локальный кэш (наша «вечная» история)
+    loadMutes();
+    updateMuteUI();
+
     const cached = getCache().sort(function (a, b) { return a.ts - b.ts; });
     cached.forEach(function (m) { appendMessage(m, false); });
 
-    // Затем — подтягиваем серверную историю (все сообщения, что ещё живы на сервере)
     fetchHistory(TOPIC_CHAT, 'all').then(function (remote) {
       remote.sort(function (a, b) { return a.ts - b.ts; });
       let appended = false;
@@ -1006,15 +1378,30 @@
       if (appended) scrollToBottom(false);
     });
 
-    // Заявляем о себе
+    fetchHistory(TOPIC_MUTES, '15m').then(function (list) {
+      list.forEach(function (m) {
+        if (m && m.type === 'mute') applyMuteAndShow(m);
+      });
+    });
+
     publishPresence({ type: 'join', name: currentUser, ts: Date.now() });
-    registerPresence({ type: 'join', name: currentUser, ts: Date.now() });
     startPing();
+    startPresencePolling();
 
     connectChatStream();
-    connectPresenceStream();
+    connectMutesStream();
 
-    cleanupTimer = setInterval(cleanupOnline, 8000);
+    cleanupTimer = setInterval(updateOnlineCount, 8000);
+    tickTimer = setInterval(function () {
+      if (!currentUser) return;
+      const now = Date.now();
+      let changed = false;
+      for (const k in activeMutes) {
+        if (activeMutes[k].until <= now) { delete activeMutes[k]; changed = true; }
+      }
+      if (changed) saveMutes();
+      updateMuteUI();
+    }, 1000);
 
     setTimeout(function () { msgInput.focus(); scrollToBottom(false); }, 60);
   }
@@ -1025,9 +1412,11 @@
       delete onlineUsers[currentUser.toLowerCase()];
     }
     stopPing();
+    stopPresencePolling();
     if (cleanupTimer) { clearInterval(cleanupTimer); cleanupTimer = null; }
-    if (chatES)      { try { chatES.close(); } catch (e) {} chatES = null; }
-    if (presenceES)  { try { presenceES.close(); } catch (e) {} presenceES = null; }
+    if (tickTimer)    { clearInterval(tickTimer);    tickTimer = null; }
+    if (chatStream)   { chatStream.close();  chatStream = null; }
+    if (mutesStream)  { mutesStream.close(); mutesStream = null; }
 
     currentUser = null;
     try { sessionStorage.removeItem(ME_KEY); } catch (e) {}
@@ -1042,6 +1431,8 @@
   /* ==================== ОТПРАВКА ==================== */
   function sendMessage() {
     if (!currentUser) return;
+    if (isMuted(currentUser.toLowerCase())) { updateMuteUI(); return; }
+
     const text = msgInput.value.trim();
     if (!text) return;
 
@@ -1052,14 +1443,10 @@
       ts: Date.now()
     };
 
-    // 1) Мгновенно показываем у себя
     saveToCache(msg);
     appendMessage(msg, true);
-
-    // 2) Отправляем в мир
     publishChat(msg);
 
-    // 3) Чистим поле
     msgInput.value = '';
     autoGrow();
     msgInput.focus();
@@ -1088,14 +1475,10 @@
 
   window.addEventListener('beforeunload', function () {
     if (currentUser) {
-      // Пытаемся отправить «leave» синхронно — сработает не всегда, но лучше чем ничего.
       try {
         const body = JSON.stringify({ type: 'leave', name: currentUser, ts: Date.now() });
-        if (navigator.sendBeacon) {
-          navigator.sendBeacon(NTFY + '/' + TOPIC_PRESENCE, body);
-        } else {
-          fetch(NTFY + '/' + TOPIC_PRESENCE, { method: 'POST', body: body, keepalive: true });
-        }
+        if (navigator.sendBeacon) navigator.sendBeacon(NTFY + '/' + TOPIC_PRESENCE, body);
+        else fetch(NTFY + '/' + TOPIC_PRESENCE, { method: 'POST', body: body, keepalive: true });
       } catch (e) {}
     }
   });
@@ -1103,7 +1486,7 @@
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden && currentUser) {
       publishPresence({ type: 'ping', name: currentUser, ts: Date.now() });
-      registerPresence({ type: 'ping', name: currentUser, ts: Date.now() });
+      pollPresence();
     }
   });
 
