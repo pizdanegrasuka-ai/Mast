@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>StepClub — Чат</title>
+<title>StepClub — Глобальный чат</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 
@@ -28,7 +28,6 @@
     -webkit-font-smoothing:antialiased;
   }
 
-  /* ---------- ФОН ---------- */
   body::before{
     content:'';
     position:fixed;
@@ -50,6 +49,7 @@
       linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
     background-size:44px 44px;
+    -webkit-mask-image:radial-gradient(circle at 50% 40%, #000 0%, transparent 78%);
     mask-image:radial-gradient(circle at 50% 40%, #000 0%, transparent 78%);
     z-index:0;
     pointer-events:none;
@@ -62,7 +62,7 @@
 
   .hidden{display:none !important}
 
-  /* ---------- ЭКРАН ВХОДА ---------- */
+  /* ================= ЭКРАН ВХОДА ================= */
   #loginScreen{
     position:relative;
     z-index:2;
@@ -73,7 +73,7 @@
   }
 
   .login-card{
-    width:min(430px,94vw);
+    width:min(440px,94vw);
     padding:44px 34px 34px;
     border-radius:26px;
     background:linear-gradient(160deg, rgba(30,30,48,.85), rgba(12,12,22,.92));
@@ -119,9 +119,28 @@
     text-align:center;
     color:var(--muted);
     font-size:14px;
-    margin:14px 0 30px;
+    margin:14px 0 6px;
     position:relative;
   }
+
+  .badge-global{
+    display:flex;
+    justify-content:center;
+    margin-bottom:26px;
+  }
+  .badge-global span{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:5px 13px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+    color:#9fe8d8;
+    background:rgba(34,211,238,.09);
+    border:1px solid rgba(34,211,238,.24);
+  }
+  .badge-global svg{width:13px;height:13px}
 
   .field{position:relative;margin-bottom:14px}
 
@@ -163,14 +182,16 @@
     background:linear-gradient(120deg, var(--accent), #a855f7 45%, var(--accent2));
     background-size:200% 100%;
     box-shadow:0 12px 34px rgba(124,92,255,.42);
-    transition:transform .16s, box-shadow .22s, background-position .5s;
+    transition:transform .16s, box-shadow .22s, background-position .5s, opacity .2s;
+    position:relative;
   }
-  .btn-primary:hover{
+  .btn-primary:hover:not(:disabled){
     transform:translateY(-2px);
     background-position:100% 0;
     box-shadow:0 18px 42px rgba(124,92,255,.55);
   }
-  .btn-primary:active{transform:translateY(0) scale(.985)}
+  .btn-primary:active:not(:disabled){transform:translateY(0) scale(.985)}
+  .btn-primary:disabled{opacity:.65;cursor:wait}
 
   .error{
     min-height:20px;
@@ -192,7 +213,7 @@
     line-height:1.6;
   }
 
-  /* ---------- ЧАТ ---------- */
+  /* ================= ЧАТ ================= */
   #chatScreen{
     position:relative;
     z-index:2;
@@ -224,7 +245,7 @@
     white-space:nowrap;
   }
 
-  .online-pill{
+  .pill{
     display:flex;
     align-items:center;
     gap:7px;
@@ -232,17 +253,37 @@
     border-radius:999px;
     font-size:12.5px;
     font-weight:600;
+    white-space:nowrap;
+    transition:.2s;
+  }
+
+  .online-pill{
     color:#9fe8d8;
     background:rgba(34,211,238,.09);
     border:1px solid rgba(34,211,238,.24);
-    white-space:nowrap;
   }
+
   .dot{
     width:7px;height:7px;border-radius:50%;
     background:#2ee6a8;
     box-shadow:0 0 10px #2ee6a8;
     animation:pulse 1.8s infinite;
   }
+
+  .status-pill{
+    color:#c8c8dd;
+    background:rgba(255,255,255,.05);
+    border:1px solid var(--border);
+    font-size:11.5px;
+  }
+  .status-pill .sdot{
+    width:7px;height:7px;border-radius:50%;
+    background:#8a8aa3;
+  }
+  .status-pill.connected .sdot{background:#2ee6a8;box-shadow:0 0 8px #2ee6a8}
+  .status-pill.connecting .sdot{background:#ffb347;box-shadow:0 0 8px #ffb347;animation:pulse 1.4s infinite}
+  .status-pill.error .sdot{background:#ff5c7a;box-shadow:0 0 8px #ff5c7a}
+
   @keyframes pulse{
     0%,100%{opacity:1;transform:scale(1)}
     50%{opacity:.45;transform:scale(.75)}
@@ -303,7 +344,7 @@
     background:rgba(255,90,120,.10);
   }
 
-  /* ---------- ЛЕНТА СООБЩЕНИЙ ---------- */
+  /* ================= СООБЩЕНИЯ ================= */
   .messages{
     flex:1 1 auto;
     min-height:0;
@@ -313,7 +354,6 @@
     display:flex;
     flex-direction:column;
     gap:2px;
-    scroll-behavior:smooth;
     overscroll-behavior:contain;
   }
   .messages::-webkit-scrollbar{width:9px}
@@ -418,7 +458,7 @@
     filter:grayscale(.3);
   }
 
-  /* ---------- ПОЛЕ ВВОДА ---------- */
+  /* ================= ПОЛЕ ВВОДА ================= */
   .composer{
     flex:0 0 auto;
     display:flex;
@@ -445,7 +485,6 @@
     line-height:1.45;
     outline:none;
     transition:border-color .2s, box-shadow .2s, background .2s;
-    scrollbar-width:thin;
   }
   .composer textarea::placeholder{color:#5f5f78}
   .composer textarea:focus{
@@ -464,17 +503,18 @@
     color:#fff;
     background:linear-gradient(135deg, var(--accent), var(--accent2));
     box-shadow:0 10px 26px rgba(124,92,255,.42);
-    transition:transform .16s, box-shadow .22s, filter .2s;
+    transition:transform .16s, box-shadow .22s;
   }
   .send-btn:hover{transform:translateY(-2px);box-shadow:0 15px 34px rgba(124,92,255,.58)}
   .send-btn:active{transform:scale(.93)}
   .send-btn svg{width:21px;height:21px}
 
-  /* ---------- МОБИЛЬНАЯ АДАПТАЦИЯ ---------- */
-  @media (max-width:640px){
-    .header{padding:11px 13px;gap:9px}
+  /* ================= МОБИЛЬНАЯ ================= */
+  @media (max-width:680px){
+    .header{padding:11px 13px;gap:8px}
     .header-logo{font-size:17px}
-    .online-pill{padding:5px 10px;font-size:11.5px}
+    .pill{padding:5px 10px;font-size:11px}
+    .status-pill{display:none}
     .user-chip .name{display:none}
     .user-chip{padding:4px}
     .messages{padding:14px 12px 6px}
@@ -492,7 +532,16 @@
 <div id="loginScreen">
   <div class="login-card">
     <div class="logo">StepClub</div>
-    <p class="tagline">Введи свободный ник и заходи в чат</p>
+    <p class="tagline">Глобальный чат — со всем миром</p>
+    <div class="badge-global">
+      <span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+        </svg>
+        Один чат на весь мир
+      </span>
+    </div>
 
     <div class="field">
       <input id="nameInput" class="input" type="text" placeholder="Твой ник"
@@ -501,7 +550,7 @@
 
     <button id="joinBtn" class="btn-primary">Войти в чат</button>
     <div id="loginError" class="error"></div>
-    <div class="hint">3–16 символов · буквы, цифры, «_»<br>История чата сохраняется навсегда</div>
+    <div class="hint">3–16 символов · буквы, цифры, «_»<br>Любой человек в мире увидит твои сообщения</div>
   </div>
 </div>
 
@@ -510,12 +559,24 @@
 
   <header class="header">
     <div class="header-logo">StepClub</div>
-    <div class="online-pill"><span class="dot"></span><span id="onlineCount">1</span>&nbsp;онлайн</div>
+
+    <div class="pill online-pill">
+      <span class="dot"></span>
+      <span id="onlineCount">1</span>&nbsp;онлайн
+    </div>
+
+    <div class="pill status-pill" id="statusPill">
+      <span class="sdot"></span>
+      <span id="statusText">Подключение…</span>
+    </div>
+
     <div class="spacer"></div>
+
     <div class="user-chip">
       <div class="avatar" id="userAvatar">?</div>
       <span class="name" id="userName">—</span>
     </div>
+
     <button class="icon-btn" id="logoutBtn" title="Выйти">
       <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -528,13 +589,13 @@
 
   <main class="messages" id="messages">
     <div class="empty" id="emptyState">
-      <b>💬</b>
-      Пока здесь тихо.<br>Напиши первое сообщение!
+      <b>🌍</b>
+      Пока здесь тихо.<br>Напиши первое сообщение — его увидит весь мир!
     </div>
   </main>
 
   <div class="composer">
-    <textarea id="msgInput" rows="1" placeholder="Написать сообщение..." maxlength="2000"></textarea>
+    <textarea id="msgInput" rows="1" placeholder="Написать в мир..." maxlength="2000"></textarea>
     <button class="send-btn" id="sendBtn" title="Отправить">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -550,15 +611,21 @@
 (function () {
   'use strict';
 
-  /* ============ КОНСТАНТЫ ============ */
-  const LS_MSG     = 'stepclub_messages_v1';
-  const LS_ONLINE  = 'stepclub_online_v1';
-  const SS_ME      = 'stepclub_me';
-  const ONLINE_TTL = 20000;   // мс — через сколько ник считается свободным
-  const HEARTBEAT  = 5000;    // мс — как часто продлеваем «онлайн»
-  const MAX_MSG    = 5000;    // максимум сообщений в хранилище
+  /* ==================== КОНФИГ ==================== */
+  // Публичный брокер ntfy.sh — без регистрации, без API-ключей, глобальный.
+  // Все, кто откроет эту страницу, подключаются к одному топику = общий чат.
+  const NTFY            = 'https://ntfy.sh';
+  const TOPIC_CHAT      = 'stepclub_global_chat_v1_a7x9k2m4q8';   // общий чат
+  const TOPIC_PRESENCE  = 'stepclub_global_presence_v1_a7x9k2m4q8'; // онлайн-статусы
 
-  /* ============ DOM ============ */
+  const PING_INTERVAL   = 10000;   // каждые 10 сек шлём «я онлайн»
+  const ONLINE_TIMEOUT  = 32000;   // если 32 сек нет пинга — оффлайн
+  const PRESENCE_CHECK  = 60000;   // окно проверки занятости ника при входе
+  const CACHE_KEY       = 'stepclub_cache_v2';
+  const ME_KEY          = 'stepclub_me_v2';
+  const MAX_CACHE       = 3000;
+
+  /* ==================== DOM ==================== */
   const loginScreen = document.getElementById('loginScreen');
   const chatScreen  = document.getElementById('chatScreen');
   const nameInput   = document.getElementById('nameInput');
@@ -573,57 +640,20 @@
   const onlineCount = document.getElementById('onlineCount');
   const userAvatar  = document.getElementById('userAvatar');
   const userName    = document.getElementById('userName');
+  const statusPill  = document.getElementById('statusPill');
+  const statusText  = document.getElementById('statusText');
 
-  /* ============ СОСТОЯНИЕ ============ */
-  let currentUser = null;
-  let heartbeatTimer = null;
-  let lastDayKey = null;
-  const renderedIds = new Set();
+  /* ==================== СОСТОЯНИЕ ==================== */
+  let currentUser   = null;
+  let onlineUsers   = {};          // name_lower -> { name, ts }
+  let renderedIds   = new Set();
+  let lastDayKey    = null;
+  let chatES        = null;        // EventSource для чата
+  let presenceES    = null;        // EventSource для онлайна
+  let pingTimer     = null;
+  let cleanupTimer  = null;
 
-  /* ============ ХРАНИЛИЩЕ ============ */
-  function getMessages() {
-    try {
-      const raw = localStorage.getItem(LS_MSG);
-      const arr = raw ? JSON.parse(raw) : [];
-      return Array.isArray(arr) ? arr : [];
-    } catch (e) { return []; }
-  }
-
-  function saveMessage(msg) {
-    const arr = getMessages();
-    arr.push(msg);
-    if (arr.length > MAX_MSG) arr.splice(0, arr.length - MAX_MSG);
-    try { localStorage.setItem(LS_MSG, JSON.stringify(arr)); } catch (e) {}
-  }
-
-  function getOnline() {
-    let obj = {};
-    try { obj = JSON.parse(localStorage.getItem(LS_ONLINE) || '{}') || {}; } catch (e) {}
-    const now = Date.now();
-    const fresh = {};
-    for (const k in obj) {
-      if (typeof obj[k] === 'number' && now - obj[k] < ONLINE_TTL) fresh[k] = obj[k];
-    }
-    return fresh;
-  }
-
-  function writeOnline(obj) {
-    try { localStorage.setItem(LS_ONLINE, JSON.stringify(obj)); } catch (e) {}
-  }
-
-  function setOnline(name) {
-    const o = getOnline();
-    o[name] = Date.now();
-    writeOnline(o);
-  }
-
-  function removeOnline(name) {
-    const o = getOnline();
-    delete o[name];
-    writeOnline(o);
-  }
-
-  /* ============ УТИЛИТЫ ============ */
+  /* ==================== УТИЛИТЫ ==================== */
   function hashCode(str) {
     let h = 0;
     for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0;
@@ -657,11 +687,67 @@
     return /^[A-Za-zА-Яа-яЁё0-9_]{3,16}$/.test(n);
   }
 
-  /* ============ КАНАЛ МЕЖДУ ВКЛАДКАМИ ============ */
-  let bc = null;
-  try { if ('BroadcastChannel' in window) bc = new BroadcastChannel('stepclub'); } catch (e) { bc = null; }
+  function setStatus(state, text) {
+    statusPill.classList.remove('connected', 'connecting', 'error');
+    if (state === 'connected') statusPill.classList.add('connected');
+    else if (state === 'connecting') statusPill.classList.add('connecting');
+    else if (state === 'error') statusPill.classList.add('error');
+    statusText.textContent = text;
+  }
 
-  /* ============ ОТРИСОВКА СООБЩЕНИЙ ============ */
+  /* ==================== ЛОКАЛЬНЫЙ КЭШ ==================== */
+  function getCache() {
+    try {
+      const arr = JSON.parse(localStorage.getItem(CACHE_KEY) || '[]');
+      return Array.isArray(arr) ? arr : [];
+    } catch (e) { return []; }
+  }
+
+  function saveToCache(msg) {
+    try {
+      const arr = getCache();
+      if (arr.some(function (m) { return m.id === msg.id; })) return;
+      arr.push(msg);
+      if (arr.length > MAX_CACHE) arr.splice(0, arr.length - MAX_CACHE);
+      localStorage.setItem(CACHE_KEY, JSON.stringify(arr));
+    } catch (e) {}
+  }
+
+  /* ==================== ПУБЛИКАЦИЯ ==================== */
+  function publish(topic, payload) {
+    // ntfy принимает тело запроса как текст сообщения.
+    return fetch(NTFY + '/' + topic, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }).catch(function () { /* игнорируем сетевые сбои */ });
+  }
+
+  function publishChat(msg)  { return publish(TOPIC_CHAT, msg); }
+  function publishPresence(p){ return publish(TOPIC_PRESENCE, p); }
+
+  /* ==================== ЗАГРУЗКА ИСТОРИИ ==================== */
+  // ntfy отдаёт NDJSON (по одному событию на строку).
+  async function fetchHistory(topic, since) {
+    try {
+      const url = NTFY + '/' + topic + '/json?poll=1&since=' + since;
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      const text = await res.text();
+      const lines = text.split('\n').filter(Boolean);
+      const out = [];
+      for (let i = 0; i < lines.length; i++) {
+        try {
+          const env = JSON.parse(lines[i]);
+          if (env && env.event === 'message' && env.message) {
+            out.push(JSON.parse(env.message));
+          }
+        } catch (e) {}
+      }
+      return out;
+    } catch (e) { return []; }
+  }
+
+  /* ==================== ОТРИСОВКА ==================== */
   function createMessageEl(msg) {
     const isOwn = currentUser && msg.name.toLowerCase() === currentUser.toLowerCase();
 
@@ -707,15 +793,14 @@
   }
 
   function scrollToBottom(smooth) {
-    if (smooth) {
-      messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
-    } else {
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
+    try {
+      if (smooth) messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
+      else messagesEl.scrollTop = messagesEl.scrollHeight;
+    } catch (e) { messagesEl.scrollTop = messagesEl.scrollHeight; }
   }
 
   function appendMessage(msg, doScroll) {
-    if (renderedIds.has(msg.id)) return;
+    if (!msg || !msg.id || renderedIds.has(msg.id)) return;
     renderedIds.add(msg.id);
 
     if (emptyState) emptyState.style.display = 'none';
@@ -733,32 +818,105 @@
     if (doScroll !== false) scrollToBottom(true);
   }
 
-  function renderAll() {
-    messagesEl.querySelectorAll('.msg, .day').forEach(function (n) { n.remove(); });
-    renderedIds.clear();
-    lastDayKey = null;
-
-    const all = getMessages();
-    all.forEach(function (m) { appendMessage(m, false); });
-
-    if (all.length === 0 && emptyState) emptyState.style.display = '';
-    scrollToBottom(false);
+  /* ==================== ОНЛАЙН ==================== */
+  function updateOnlineCount() {
+    const now = Date.now();
+    let count = 0;
+    for (const k in onlineUsers) {
+      if (now - onlineUsers[k].ts < ONLINE_TIMEOUT) count++;
+    }
+    onlineCount.textContent = count;
   }
 
-  /* ============ ОНЛАЙН ============ */
-  function updateOnline() {
-    const n = Object.keys(getOnline()).length;
-    onlineCount.textContent = n;
+  function cleanupOnline() {
+    const now = Date.now();
+    let changed = false;
+    for (const k in onlineUsers) {
+      if (now - onlineUsers[k].ts >= ONLINE_TIMEOUT) {
+        delete onlineUsers[k];
+        changed = true;
+      }
+    }
+    if (changed) updateOnlineCount();
   }
 
-  function startHeartbeat() {
-    clearInterval(heartbeatTimer);
-    heartbeatTimer = setInterval(function () {
-      if (currentUser) { setOnline(currentUser); updateOnline(); }
-    }, HEARTBEAT);
+  function registerPresence(p) {
+    if (!p || !p.name) return;
+    const key = String(p.name).toLowerCase();
+    if (p.type === 'leave') {
+      delete onlineUsers[key];
+    } else {
+      onlineUsers[key] = { name: p.name, ts: p.ts || Date.now() };
+    }
+    updateOnlineCount();
   }
 
-  /* ============ ВХОД ============ */
+  function startPing() {
+    stopPing();
+    const doPing = function () {
+      if (!currentUser) return;
+      publishPresence({ type: 'ping', name: currentUser, ts: Date.now() });
+    };
+    doPing();
+    pingTimer = setInterval(doPing, PING_INTERVAL);
+  }
+
+  function stopPing() {
+    if (pingTimer) { clearInterval(pingTimer); pingTimer = null; }
+  }
+
+  /* ==================== ПОТОКИ ==================== */
+  function connectChatStream() {
+    if (chatES) { try { chatES.close(); } catch (e) {} }
+    setStatus('connecting', 'Подключение…');
+
+    try {
+      chatES = new EventSource(NTFY + '/' + TOPIC_CHAT + '/sse');
+    } catch (e) {
+      setStatus('error', 'Ошибка');
+      return;
+    }
+
+    chatES.onopen = function () { setStatus('connected', 'Онлайн'); };
+
+    chatES.onmessage = function (e) {
+      try {
+        const env = JSON.parse(e.data);
+        if (!env || env.event !== 'message' || !env.message) return;
+        const payload = JSON.parse(env.message);
+        if (payload && payload.id && payload.name && typeof payload.text === 'string') {
+          saveToCache(payload);
+          appendMessage(payload, true);
+        }
+      } catch (err) {}
+    };
+
+    chatES.onerror = function () {
+      setStatus('connecting', 'Переподключение…');
+      // EventSource сам переподключится
+    };
+  }
+
+  function connectPresenceStream() {
+    if (presenceES) { try { presenceES.close(); } catch (e) {} }
+
+    try {
+      presenceES = new EventSource(NTFY + '/' + TOPIC_PRESENCE + '/sse');
+    } catch (e) { return; }
+
+    presenceES.onmessage = function (e) {
+      try {
+        const env = JSON.parse(e.data);
+        if (!env || env.event !== 'message' || !env.message) return;
+        const payload = JSON.parse(env.message);
+        registerPresence(payload);
+      } catch (err) {}
+    };
+
+    presenceES.onerror = function () { /* сам переподключится */ };
+  }
+
+  /* ==================== ВХОД ==================== */
   function showError(text) {
     loginError.textContent = text;
     loginError.classList.add('show');
@@ -771,7 +929,26 @@
     nameInput.classList.remove('invalid');
   }
 
-  function tryJoin() {
+  async function isNameTaken(name) {
+    // Тянем присутствие за последнюю минуту с сервера + локальный кэш онлайна
+    const fromServer = await fetchHistory(TOPIC_PRESENCE, '1m');
+    const now = Date.now();
+    const low = name.toLowerCase();
+
+    const check = function (p) {
+      return p && p.name && p.name.toLowerCase() === low
+          && p.type !== 'leave'
+          && (now - (p.ts || 0)) < ONLINE_TIMEOUT;
+    };
+
+    if (fromServer.some(check)) return true;
+    for (const k in onlineUsers) {
+      if (k === low && (now - onlineUsers[k].ts) < ONLINE_TIMEOUT) return true;
+    }
+    return false;
+  }
+
+  async function tryJoin() {
     const name = nameInput.value.trim();
 
     if (!name) { showError('Введи ник'); return; }
@@ -780,20 +957,28 @@
       return;
     }
 
-    const online = getOnline();
-    const taken = Object.keys(online).some(function (n) {
-      return n.toLowerCase() === name.toLowerCase();
-    });
-
-    if (taken) { showError('Этот ник сейчас занят — выбери другой'); return; }
-
     clearError();
+    joinBtn.disabled = true;
+    joinBtn.textContent = 'Проверяю ник…';
+
+    let taken = false;
+    try { taken = await isNameTaken(name); }
+    catch (e) { taken = false; }
+
+    joinBtn.disabled = false;
+    joinBtn.textContent = 'Войти в чат';
+
+    if (taken) {
+      showError('Этот ник сейчас в сети — выбери другой');
+      return;
+    }
+
     currentUser = name;
-    try { sessionStorage.setItem(SS_ME, name); } catch (e) {}
+    try { sessionStorage.setItem(ME_KEY, name); } catch (e) {}
     enterChat();
   }
 
-  function enterChat() {
+  async function enterChat() {
     loginScreen.classList.add('hidden');
     chatScreen.classList.remove('hidden');
 
@@ -802,20 +987,50 @@
     userAvatar.style.setProperty('--hue', hue);
     userName.textContent = currentUser;
 
-    setOnline(currentUser);
-    updateOnline();
-    startHeartbeat();
+    // Сначала — старый локальный кэш (наша «вечная» история)
+    const cached = getCache().sort(function (a, b) { return a.ts - b.ts; });
+    cached.forEach(function (m) { appendMessage(m, false); });
 
-    renderAll();
-    setTimeout(function () { msgInput.focus(); scrollToBottom(false); }, 40);
+    // Затем — подтягиваем серверную историю (все сообщения, что ещё живы на сервере)
+    fetchHistory(TOPIC_CHAT, 'all').then(function (remote) {
+      remote.sort(function (a, b) { return a.ts - b.ts; });
+      let appended = false;
+      remote.forEach(function (m) {
+        if (m && m.id && !renderedIds.has(m.id)) {
+          saveToCache(m);
+          appendMessage(m, false);
+          appended = true;
+        }
+      });
+      if (renderedIds.size === 0 && emptyState) emptyState.style.display = '';
+      if (appended) scrollToBottom(false);
+    });
+
+    // Заявляем о себе
+    publishPresence({ type: 'join', name: currentUser, ts: Date.now() });
+    registerPresence({ type: 'join', name: currentUser, ts: Date.now() });
+    startPing();
+
+    connectChatStream();
+    connectPresenceStream();
+
+    cleanupTimer = setInterval(cleanupOnline, 8000);
+
+    setTimeout(function () { msgInput.focus(); scrollToBottom(false); }, 60);
   }
 
   function logout() {
-    if (currentUser) removeOnline(currentUser);
-    clearInterval(heartbeatTimer);
-    heartbeatTimer = null;
+    if (currentUser) {
+      publishPresence({ type: 'leave', name: currentUser, ts: Date.now() });
+      delete onlineUsers[currentUser.toLowerCase()];
+    }
+    stopPing();
+    if (cleanupTimer) { clearInterval(cleanupTimer); cleanupTimer = null; }
+    if (chatES)      { try { chatES.close(); } catch (e) {} chatES = null; }
+    if (presenceES)  { try { presenceES.close(); } catch (e) {} presenceES = null; }
+
     currentUser = null;
-    try { sessionStorage.removeItem(SS_ME); } catch (e) {}
+    try { sessionStorage.removeItem(ME_KEY); } catch (e) {}
 
     chatScreen.classList.add('hidden');
     loginScreen.classList.remove('hidden');
@@ -824,7 +1039,7 @@
     nameInput.focus();
   }
 
-  /* ============ ОТПРАВКА ============ */
+  /* ==================== ОТПРАВКА ==================== */
   function sendMessage() {
     if (!currentUser) return;
     const text = msgInput.value.trim();
@@ -837,13 +1052,14 @@
       ts: Date.now()
     };
 
-    saveMessage(msg);
+    // 1) Мгновенно показываем у себя
+    saveToCache(msg);
     appendMessage(msg, true);
 
-    if (bc) {
-      try { bc.postMessage({ type: 'msg', msg: msg }); } catch (e) {}
-    }
+    // 2) Отправляем в мир
+    publishChat(msg);
 
+    // 3) Чистим поле
     msgInput.value = '';
     autoGrow();
     msgInput.focus();
@@ -854,7 +1070,7 @@
     msgInput.style.height = Math.min(msgInput.scrollHeight, 140) + 'px';
   }
 
-  /* ============ СОБЫТИЯ ============ */
+  /* ==================== СОБЫТИЯ ==================== */
   joinBtn.addEventListener('click', tryJoin);
 
   nameInput.addEventListener('keydown', function (e) {
@@ -863,55 +1079,38 @@
   nameInput.addEventListener('input', clearError);
 
   sendBtn.addEventListener('click', sendMessage);
-
   msgInput.addEventListener('input', autoGrow);
-
   msgInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   });
 
   logoutBtn.addEventListener('click', logout);
 
   window.addEventListener('beforeunload', function () {
-    if (currentUser) removeOnline(currentUser);
+    if (currentUser) {
+      // Пытаемся отправить «leave» синхронно — сработает не всегда, но лучше чем ничего.
+      try {
+        const body = JSON.stringify({ type: 'leave', name: currentUser, ts: Date.now() });
+        if (navigator.sendBeacon) {
+          navigator.sendBeacon(NTFY + '/' + TOPIC_PRESENCE, body);
+        } else {
+          fetch(NTFY + '/' + TOPIC_PRESENCE, { method: 'POST', body: body, keepalive: true });
+        }
+      } catch (e) {}
+    }
   });
 
   document.addEventListener('visibilitychange', function () {
-    if (!document.hidden && currentUser) { setOnline(currentUser); updateOnline(); }
-  });
-
-  /* Приём сообщений из других вкладок */
-  if (bc) {
-    bc.onmessage = function (e) {
-      const data = e.data || {};
-      if (data.type === 'msg' && data.msg) {
-        appendMessage(data.msg, true);
-      } else if (data.type === 'online') {
-        updateOnline();
-      }
-    };
-  }
-
-  /* Резервная синхронизация через storage */
-  window.addEventListener('storage', function (e) {
-    if (e.key === LS_MSG) {
-      getMessages().forEach(function (m) {
-        if (!renderedIds.has(m.id)) appendMessage(m, true);
-      });
+    if (!document.hidden && currentUser) {
+      publishPresence({ type: 'ping', name: currentUser, ts: Date.now() });
+      registerPresence({ type: 'ping', name: currentUser, ts: Date.now() });
     }
-    if (e.key === LS_ONLINE) updateOnline();
   });
 
-  /* ============ СТАРТ ============ */
+  /* ==================== СТАРТ ==================== */
   (function init() {
-    // подчищаем просроченные записи онлайна
-    writeOnline(getOnline());
-
     let saved = null;
-    try { saved = sessionStorage.getItem(SS_ME); } catch (e) {}
+    try { saved = sessionStorage.getItem(ME_KEY); } catch (e) {}
 
     if (saved && isValidName(saved)) {
       currentUser = saved;
